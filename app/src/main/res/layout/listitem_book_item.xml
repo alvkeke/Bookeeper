@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/book_item_parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:text="+100"
+        android:textSize="@dimen/font_size_book_item_main"
+        android:textColor="@color/black"
+        android:id="@+id/book_item_money"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/margin_book_item"
+        android:layout_marginTop="@dimen/margin_book_item"
+        android:layout_marginEnd="@dimen/margin_book_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="2022-12-14"
+        android:textSize="@dimen/font_size_book_item_2nd"
+        android:id="@+id/book_item_time"
+        android:layout_below="@id/book_item_money"
+        android:layout_alignEnd="@id/book_item_money"
+        android:layout_marginTop="@dimen/margin_book_item"
+        android:layout_marginBottom="@dimen/margin_book_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="TAG"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_size_book_item_main"
+        android:id="@+id/book_item_category"
+        android:layout_marginStart="@dimen/margin_book_item"
+        android:layout_marginTop="@dimen/margin_book_item"
+        android:layout_marginBottom="@dimen/margin_book_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="SUB TAGS, 1, 2, 3, ..."
+        android:id="@+id/book_item_tags"
+        android:textSize="@dimen/font_size_book_item_2nd"
+        android:layout_alignStart="@id/book_item_category"
+        android:layout_below="@id/book_item_category"
+        android:layout_toStartOf="@id/book_item_time"
+        android:layout_marginEnd="@dimen/margin_book_item"
+        android:maxLines="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
+
