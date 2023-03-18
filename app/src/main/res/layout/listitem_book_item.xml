@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <TextView
+        android:text="Account"
+        android:textSize="@dimen/font_size_book_item_main"
+        android:textColor="@color/black"
+        android:id="@+id/book_item_account"
+        android:layout_toStartOf="@id/book_item_money"
+        android:layout_alignBaseline="@id/book_item_money"
+        android:layout_marginEnd="@dimen/margin_book_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:text="+100"
