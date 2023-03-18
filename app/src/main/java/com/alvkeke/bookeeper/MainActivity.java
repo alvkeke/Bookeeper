@@ -1,12 +1,15 @@
 package com.alvkeke.bookeeper;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private final BookManager bookManager = BookManager.getInstance();
+    private RecyclerView bookItemList;
+    private BookListAdapter bookItemListAdapter;
 
     private void randomFillTags(ArrayList<String> tags) {
         for (int i=0; i<20; i++) {
@@ -45,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=0; i<30; i++) {
             int money = random.nextInt(200) - 100;
-            BookItem item = new BookItem(money, new Date().getTime(),
+            BookItem item = new BookItem(money * 100, new Date().getTime(),
                     categories.get(random.nextInt(categories.size())));
             for (int j=0; j<i; j++)
                 item.addTag("tag"+j);
@@ -57,11 +62,23 @@ public class MainActivity extends AppCompatActivity {
 
     class BtnAddItemClickListener implements View.OnClickListener {
 
+        ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        bookItemListAdapter.notifyDataSetChanged();
+                    }
+                }
+        });
+
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(MainActivity.this, ItemAddActivity.class);
-            startActivity(intent);
+            launcher.launch(intent);
         }
+
     }
 
     @Override
@@ -69,15 +86,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView bookList = findViewById(R.id.list_book_list);
+        bookItemList = findViewById(R.id.list_book_list);
         Button btnAddItem = findViewById(R.id.btn_add_item);
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
-        BookListAdapter adapter = new BookListAdapter(bookManager.getBookItems());
-        bookList.setAdapter(adapter);
-        bookList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        bookList.setLayoutManager(new LinearLayoutManager(this));
+        bookItemListAdapter = new BookListAdapter(bookManager.getBookItems());
+        bookItemList.setAdapter(bookItemListAdapter);
+        bookItemList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        bookItemList.setLayoutManager(new LinearLayoutManager(this));
         randomFillTags(bookManager.getTags());
         randomFillCate(bookManager.getCategories());
         randomFillBook(bookManager.getBookItems());

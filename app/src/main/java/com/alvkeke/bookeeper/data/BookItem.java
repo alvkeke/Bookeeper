@@ -13,7 +13,6 @@ public class BookItem {
         this.money = money;
         this.time = time;
         this.category = category;
-        tags = new ArrayList<>();
     }
 
     public void setMoney(int money) {
@@ -40,8 +39,14 @@ public class BookItem {
         return category;
     }
 
+    public void setTagList(ArrayList<String> tags) {
+         this.tags = tags;
+    }
     public void addTag(String tag) {
-         tags.add(tag);
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+        tags.add(tag);
     }
 
     public ArrayList<String> getTags() {

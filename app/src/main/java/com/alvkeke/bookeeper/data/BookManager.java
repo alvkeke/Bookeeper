@@ -33,4 +33,10 @@ public class BookManager {
         return bookItems;
     }
 
+    public void addBookItem(BookItem e) {
+        if (e != null) {
+            this.bookItems.add(e);
+        }
+    }
+
 }

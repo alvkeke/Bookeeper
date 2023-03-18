@@ -139,6 +139,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         }
 
         public void setTags(ArrayList<String> tags) {
+            if (tags == null)
+                return;
             StringBuilder sb = new StringBuilder();
             for (String e : tags) {
                 sb.append(e);

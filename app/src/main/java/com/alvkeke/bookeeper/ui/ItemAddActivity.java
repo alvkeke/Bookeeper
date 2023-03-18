@@ -1,5 +1,6 @@
 package com.alvkeke.bookeeper.ui;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +16,13 @@ import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.helper.widget.Flow;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import com.alvkeke.bookeeper.R;
+import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
 
 import java.util.ArrayList;
@@ -30,92 +31,74 @@ import java.util.ArrayList;
 public class ItemAddActivity extends AppCompatActivity {
 
     private final BookManager bookManager = BookManager.getInstance();
-    private Spinner spinner;
+    private Spinner spinnerCategory;
     private Button btnItemOk, btnItemCancel, btnItemDate, btnItemTime, btnItemTags;
     private RadioGroup radioItemInout;
     private EditText editItemMoney;
+    private long timeItem = 0;
 
-    private ArrayList<String> currentTags = new ArrayList<>();
+    private final ArrayList<String> selectedTags = new ArrayList<>();
 
+    class OnItemAddCancel implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent();
+            ItemAddActivity.this.setResult(RESULT_CANCELED, intent);
+            ItemAddActivity.this.finish();
+        }
+    }
     class OnItemAddOk implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            Log.d("ItemAdd", spinner.getSelectedItem().toString());
+            String category = spinnerCategory.getSelectedItem().toString();
+            String[] ssMoney = editItemMoney.getText().toString().split("\\.");
+            if (ssMoney.length <= 0) {
+                Log.e("ItemAdd", "Not a correct value of money");
+                return;
+            }
+            int money = 0;
+            if (ssMoney[0].length() != 0){
+                money = Integer.parseInt(ssMoney[0]);
+                money *= 100;
+            }
+            if (ssMoney.length>1 && ssMoney[1].length() != 0) {
+                String s_money_2nd = ssMoney[1];
+                if (s_money_2nd.length() > 2) s_money_2nd = s_money_2nd.substring(0, 2);
+                money += Integer.parseInt(s_money_2nd);
+            }
             int btnId = radioItemInout.getCheckedRadioButtonId();
-            switch (btnId) {
-                case R.id.item_add_radio_in:
-                    Log.d("ItemAdd", "Income");
-                    break;
-                case R.id.item_add_radio_out:
-                    Log.d("ItemAdd", "Outcome");
-                    break;
-                default:
-                    Log.d("ItemAdd", "No Selected Item");
+            if (btnId == R.id.item_add_radio_out) {
+                money *= -1;
             }
-            Log.d("ItemAdd", "Money: " + editItemMoney.getText().toString());
-            StringBuilder sb = new StringBuilder();
-            for (String s : currentTags) {
-                sb.append(s);
-                sb.append(" ");
-            }
-            Log.d("ItemAdd", "Tags: " + sb);
+            BookItem item = new BookItem(money, timeItem, category);
+            item.setTagList(selectedTags);
+            bookManager.addBookItem(item);
+
+            Intent intent = new Intent();
+            ItemAddActivity.this.setResult(RESULT_OK, intent);
+            ItemAddActivity.this.finish();
         }
     }
 
-    class OnTagSelectOk implements View.OnClickListener {
+    class OnItemTagsPopup implements View.OnClickListener, View.OnLongClickListener {
 
-        PopupWindow popupWindow;
-        ArrayList<CheckBox> checkBoxes;
-        public OnTagSelectOk(PopupWindow popup, ArrayList<CheckBox> cbList) {
-            this.popupWindow = popup;
-            this.checkBoxes = cbList;
-        }
-
-        @Override
-        public void onClick(View view) {
-            currentTags.clear();
-            for (CheckBox cb : checkBoxes) {
-                if (cb.isChecked()) {
-                    currentTags.add(cb.getText().toString());
-                }
-            }
-            popupWindow.dismiss();
-        }
-    }
-
-    class OnTagSelectCancel implements View.OnClickListener {
-
-        PopupWindow popupWindow;
-        public OnTagSelectCancel(PopupWindow popup) {
-            this.popupWindow = popup;
-        }
-
-        @Override
-        public void onClick(View view) {
-            popupWindow.dismiss();
-        }
-    }
-
-    class OnItemTagsPopup implements View.OnClickListener {
-
-        @Override
-        public void onClick(View view) {
-            Log.e("ItemAdd", "show tags pop window");
+        private void popup() {
             View v = LayoutInflater.from(ItemAddActivity.this)
                     .inflate(R.layout.popup_tags, null, false);
 
             ConstraintLayout tags_layout = v.findViewById(R.id.popup_tags_container);
             Flow flow = v.findViewById(R.id.popup_tags_flow);
-            ArrayList<CheckBox> cbList = new ArrayList<>();
             Button btnTagsOk = v.findViewById(R.id.popup_tags_tag_ok);
             Button btnTagCancel = v.findViewById(R.id.popup_tags_tag_cancel);
+            ArrayList<CheckBox> cbList = new ArrayList<>();
 
             ArrayList<String> tags = bookManager.getTags();
             for (int i=0; i<tags.size(); i++) {
                 CheckBox cb = new CheckBox(ItemAddActivity.this);
                 cb.setText(tags.get(i));
                 cb.setId(View.generateViewId());
-                for (String t_cur : currentTags) {
+                for (String t_cur : selectedTags) {
                     if (t_cur.equals(tags.get(i))) {
                         cb.setChecked(true);
                         break;
@@ -128,16 +111,62 @@ public class ItemAddActivity extends AppCompatActivity {
 
             PopupWindow popup = new PopupWindow(v,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                    ViewGroup.LayoutParams.WRAP_CONTENT, false);
             Drawable background = ContextCompat.getDrawable(ItemAddActivity.this,
                     R.drawable.round_coner_popup_tags);
             popup.setBackgroundDrawable(background);
             popup.showAtLocation(v, Gravity.CENTER, 0, 0);
 
-
             btnTagsOk.setOnClickListener(new OnTagSelectOk(popup, cbList));
             btnTagCancel.setOnClickListener(new OnTagSelectCancel(popup));
         }
+
+        @Override
+        public void onClick(View view) {
+            popup();
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            selectedTags.clear();
+            popup();
+            return true;
+        }
+
+        private class OnTagSelectOk implements View.OnClickListener {
+
+            PopupWindow popupWindow;
+            ArrayList<CheckBox> checkBoxes;
+            public OnTagSelectOk(PopupWindow popup, ArrayList<CheckBox> cbList) {
+                this.popupWindow = popup;
+                this.checkBoxes = cbList;
+            }
+
+            @Override
+            public void onClick(View view) {
+                selectedTags.clear();
+                for (CheckBox cb : checkBoxes) {
+                    if (cb.isChecked()) {
+                        selectedTags.add(cb.getText().toString());
+                    }
+                }
+                popupWindow.dismiss();
+            }
+        }
+
+        private class OnTagSelectCancel implements View.OnClickListener {
+
+            PopupWindow popupWindow;
+            public OnTagSelectCancel(PopupWindow popup) {
+                this.popupWindow = popup;
+            }
+
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+            }
+        }
+
     }
 
     @Override
@@ -145,11 +174,11 @@ public class ItemAddActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_add);
 
-        spinner = findViewById(R.id.item_add_cate_box);
+        spinnerCategory = findViewById(R.id.item_add_cate_box);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 bookManager.getCategories());
-        spinner.setAdapter(adapter);
+        spinnerCategory.setAdapter(adapter);
 
         btnItemOk = findViewById(R.id.item_add_ok_btn);
         btnItemCancel = findViewById(R.id.item_add_cancel_btn);
@@ -160,6 +189,8 @@ public class ItemAddActivity extends AppCompatActivity {
         editItemMoney = findViewById(R.id.item_add_money_box);
 
         btnItemOk.setOnClickListener(new OnItemAddOk());
+        btnItemCancel.setOnClickListener(new OnItemAddCancel());
         btnItemTags.setOnClickListener(new OnItemTagsPopup());
+        btnItemTags.setOnLongClickListener(new OnItemTagsPopup());
     }
 }
