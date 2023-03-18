@@ -27,6 +27,12 @@ public class MainActivity extends AppCompatActivity {
 
     private final BookManager bookManager = BookManager.getInstance();
 
+    private void randomFillTags(ArrayList<String> tags) {
+        for (int i=0; i<20; i++) {
+            String s = "tag" + i;
+            tags.add(s);
+        }
+    }
     private void randomFillCate(ArrayList<String> categories) {
         String[] c = new String[]{"餐饮", "衣物穿戴", "交通", "住宿", "娱乐", "医疗", "电子产品", "互联网服务"};
         categories.addAll(Arrays.asList(c));
@@ -49,16 +55,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    static class BtnAddItemClickListener implements View.OnClickListener {
+    class BtnAddItemClickListener implements View.OnClickListener {
 
-        private final Context ctx;
-        public BtnAddItemClickListener(Context ctx) {
-            this.ctx = ctx;
-        }
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(ctx, ItemAddActivity.class);
-            ctx.startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, ItemAddActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -70,12 +72,13 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView bookList = findViewById(R.id.list_book_list);
         Button btnAddItem = findViewById(R.id.btn_add_item);
 
-        btnAddItem.setOnClickListener(new BtnAddItemClickListener(this));
+        btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
         BookListAdapter adapter = new BookListAdapter(bookManager.getBookItems());
         bookList.setAdapter(adapter);
         bookList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         bookList.setLayoutManager(new LinearLayoutManager(this));
+        randomFillTags(bookManager.getTags());
         randomFillCate(bookManager.getCategories());
         randomFillBook(bookManager.getBookItems());
 
