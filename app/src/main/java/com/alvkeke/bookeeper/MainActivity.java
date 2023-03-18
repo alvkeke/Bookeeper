@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> accounts = bookManager.getAccounts();
         Random random = new Random();
 
-        for (int i=0; i<30; i++) {
+        for (int i=0; i<5; i++) {
             int money = random.nextInt(200) - 100;
             if (money > 0)
                 cates = cates_in;
