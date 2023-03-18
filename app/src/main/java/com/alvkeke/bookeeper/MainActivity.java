@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alvkeke.bookeeper.data.BookItem;
+import com.alvkeke.bookeeper.data.BookManager;
 import com.alvkeke.bookeeper.ui.ItemAddActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 
@@ -23,6 +24,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
 
+    private final BookManager bookManager = BookManager.getInstance();
 
     private void randomFillBook(ArrayList<BookItem> bookItems) {
         if (bookItems == null) return;
@@ -64,12 +66,11 @@ public class MainActivity extends AppCompatActivity {
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener(this));
 
-        ArrayList<BookItem> bookItems = new ArrayList<>();
-        BookListAdapter adapter = new BookListAdapter(bookItems);
+        BookListAdapter adapter = new BookListAdapter(bookManager.getBookItems());
         bookList.setAdapter(adapter);
         bookList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         bookList.setLayoutManager(new LinearLayoutManager(this));
-        randomFillBook(bookItems);
+        randomFillBook(bookManager.getBookItems());
 
     }
 }
