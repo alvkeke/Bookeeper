@@ -47,7 +47,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             Log.e(this.toString(), "Cannot get BookItem in pos: " + position);
             return;
         }
-        Log.e(this.toString(), "set item: " + position);
 
         holder.setMoney(item.getMoney());
         holder.setTime(item.getTime());
