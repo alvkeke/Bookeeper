@@ -7,22 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".ui.ItemAddActivity">
 
+    <Spinner
+        android:id="@+id/item_add_accounts"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <EditText
         android:id="@+id/item_add_money_box"
         android:text="1000.00"
         android:textSize="20sp"
         android:inputType="numberDecimal"
-        android:layout_marginStart="20dp"
+        android:layout_alignParentEnd="true"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
+        android:layout_toEndOf="@id/item_add_accounts"
+        android:layout_alignTop="@id/item_add_accounts"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <RadioGroup
         android:id="@+id/item_add_radio_group"
         android:layout_marginTop="20dp"
         android:layout_below="@id/item_add_money_box"
-        android:layout_alignStart="@id/item_add_money_box"
+        android:layout_alignStart="@id/item_add_accounts"
         android:layout_alignEnd="@id/item_add_money_box"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -36,7 +45,7 @@
 
         <RadioButton
             android:id="@+id/item_add_radio_out"
-            android:text="outcome"
+            android:text="outlay"
             android:checked="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -48,7 +57,7 @@
         android:text="Tags"
         android:layout_below="@id/item_add_radio_group"
         android:layout_marginTop="20dp"
-        android:layout_alignStart="@id/item_add_money_box"
+        android:layout_alignStart="@id/item_add_accounts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -66,7 +75,7 @@
         android:text="2000-01-01"
         android:layout_below="@id/item_add_tags_btn"
         android:layout_marginTop="20dp"
-        android:layout_alignStart="@id/item_add_money_box"
+        android:layout_alignStart="@id/item_add_accounts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

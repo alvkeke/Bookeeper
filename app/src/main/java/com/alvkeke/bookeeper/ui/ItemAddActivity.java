@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
@@ -31,12 +32,14 @@ import java.util.ArrayList;
 public class ItemAddActivity extends AppCompatActivity {
 
     private final BookManager bookManager = BookManager.getInstance();
-    private Spinner spinnerCategory;
+    private Spinner spinnerCategory, spinnerAccount;
     private Button btnItemOk, btnItemCancel, btnItemDate, btnItemTime, btnItemTags;
     private RadioGroup radioItemInout;
+    private RadioButton radioIncome, radioOutlay;
     private EditText editItemMoney;
     private long timeItem = 0;
 
+    private ArrayAdapter<String> spinnerAdapterIncome, spinnerAdapterOutlay;
     private final ArrayList<String> selectedTags = new ArrayList<>();
 
     class OnItemAddCancel implements View.OnClickListener {
@@ -52,6 +55,7 @@ public class ItemAddActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             String category = spinnerCategory.getSelectedItem().toString();
+            String account = spinnerAccount.getSelectedItem().toString();
             String[] ssMoney = editItemMoney.getText().toString().split("\\.");
             if (ssMoney.length <= 0) {
                 Log.e("ItemAdd", "Not a correct value of money");
@@ -71,7 +75,7 @@ public class ItemAddActivity extends AppCompatActivity {
             if (btnId == R.id.item_add_radio_out) {
                 money *= -1;
             }
-            BookItem item = new BookItem(money, timeItem, category);
+            BookItem item = new BookItem(money, timeItem, category, account);
             item.setTagList(selectedTags);
             bookManager.addBookItem(item);
 
@@ -169,25 +173,50 @@ public class ItemAddActivity extends AppCompatActivity {
 
     }
 
+    class OnInOutChanged implements RadioGroup.OnCheckedChangeListener {
+
+        @Override
+        public void onCheckedChanged(RadioGroup radioGroup, int i) {
+            if (i == radioIncome.getId()) {
+                spinnerCategory.setAdapter(spinnerAdapterIncome);
+            } else if (i == radioOutlay.getId()) {
+                spinnerCategory.setAdapter(spinnerAdapterOutlay);
+            }
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_add);
 
         spinnerCategory = findViewById(R.id.item_add_cate_box);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                bookManager.getCategories());
-        spinnerCategory.setAdapter(adapter);
-
+        spinnerAccount = findViewById(R.id.item_add_accounts);
         btnItemOk = findViewById(R.id.item_add_ok_btn);
         btnItemCancel = findViewById(R.id.item_add_cancel_btn);
         btnItemDate = findViewById(R.id.item_add_date_btn);
         btnItemTime = findViewById(R.id.item_add_time_btn);
         btnItemTags = findViewById(R.id.item_add_tags_btn);
         radioItemInout = findViewById(R.id.item_add_radio_group);
+        radioOutlay = findViewById(R.id.item_add_radio_out);
+        radioIncome = findViewById(R.id.item_add_radio_in);
         editItemMoney = findViewById(R.id.item_add_money_box);
 
+        // initialize 2 spinner adapters
+        spinnerAdapterOutlay = new ArrayAdapter<>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                bookManager.getOutlayCategories());
+        spinnerAdapterIncome = new ArrayAdapter<>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                bookManager.getIncomeCategories());
+        ArrayAdapter<String> spinnerAdapterAccount = new ArrayAdapter<>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                bookManager.getAccounts());
+
+        // outlay by default
+        spinnerCategory.setAdapter(spinnerAdapterOutlay);
+        spinnerAccount.setAdapter(spinnerAdapterAccount);
+
+        radioItemInout.setOnCheckedChangeListener(new OnInOutChanged());
         btnItemOk.setOnClickListener(new OnItemAddOk());
         btnItemCancel.setOnClickListener(new OnItemAddCancel());
         btnItemTags.setOnClickListener(new OnItemTagsPopup());

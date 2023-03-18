@@ -8,11 +8,13 @@ public class BookItem {
     private long time;
     private String category;
     private ArrayList<String> tags;
+    private String account;
 
-    public BookItem(int money, long time, String category) {
+    public BookItem(int money, long time, String category, String account) {
         this.money = money;
         this.time = time;
         this.category = category;
+        this.account = account;
     }
 
     public void setMoney(int money) {
@@ -37,6 +39,14 @@ public class BookItem {
 
     public String getCategory() {
         return category;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getAccount() {
+        return account;
     }
 
     public void setTagList(ArrayList<String> tags) {

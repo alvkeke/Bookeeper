@@ -48,6 +48,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             return;
         }
 
+        holder.setAccount(item.getAccount());
         holder.setMoney(item.getMoney());
         holder.setTime(item.getTime());
         holder.setCategory(item.getCategory());
@@ -63,6 +64,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         private final RelativeLayout parent;
+        private final TextView tvAccount;
         private final TextView tvMoney;
         private final TextView tvTime;
         private final TextView tvCategory;
@@ -73,12 +75,12 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             super(itemView);
 
             parent = itemView.findViewById(R.id.book_item_parent);
+            tvAccount = itemView.findViewById(R.id.book_item_account);
             tvMoney = itemView.findViewById(R.id.book_item_money);
             tvCategory = itemView.findViewById(R.id.book_item_category);
             tvTime = itemView.findViewById(R.id.book_item_time);
             tvTags = itemView.findViewById(R.id.book_item_tags);
         }
-
 
         private void setBackColorForMoney(int money) {
             final int COLOR_INCOME = Color.rgb(255, 236, 236);
@@ -112,6 +114,9 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             }
         }
 
+        public void setAccount(String account) {
+            if (account != null) tvAccount.setText(account);
+        }
         public void setMoney(int money) {
             setColorForMoney(money);
             String sMoney;
