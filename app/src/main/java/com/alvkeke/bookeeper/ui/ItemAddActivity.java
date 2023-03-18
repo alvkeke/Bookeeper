@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -221,5 +222,10 @@ public class ItemAddActivity extends AppCompatActivity {
         btnItemCancel.setOnClickListener(new OnItemAddCancel());
         btnItemTags.setOnClickListener(new OnItemTagsPopup());
         btnItemTags.setOnLongClickListener(new OnItemTagsPopup());
+
+        // auto popup the input method
+        if (editItemMoney.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 }
