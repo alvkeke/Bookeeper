@@ -17,9 +17,9 @@
 
     <EditText
         android:id="@+id/item_add_money_box"
-        android:text="1000.00"
         android:textSize="20sp"
         android:inputType="numberDecimal"
+        android:hint="00.00"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="20dp"
         android:layout_toEndOf="@id/item_add_accounts"
