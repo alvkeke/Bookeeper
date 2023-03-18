@@ -4,12 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFAAAAAA"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/popup_tags_container"
-        android:background="#FFBBCCCC"
         android:layout_margin="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

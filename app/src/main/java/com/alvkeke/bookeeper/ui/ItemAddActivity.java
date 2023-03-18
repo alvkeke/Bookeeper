@@ -1,5 +1,6 @@
 package com.alvkeke.bookeeper.ui;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -14,9 +15,11 @@ import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.helper.widget.Flow;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.alvkeke.bookeeper.R;
 import com.alvkeke.bookeeper.data.BookManager;
@@ -92,13 +95,14 @@ public class ItemAddActivity extends AppCompatActivity {
             popupWindow.dismiss();
         }
     }
+
     class OnItemTagsPopup implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
             Log.e("ItemAdd", "show tags pop window");
             View v = LayoutInflater.from(ItemAddActivity.this)
-                    .inflate(R.layout.layout_tags_popup, null, false);
+                    .inflate(R.layout.popup_tags, null, false);
 
             ConstraintLayout tags_layout = v.findViewById(R.id.popup_tags_container);
             Flow flow = v.findViewById(R.id.popup_tags_flow);
@@ -125,6 +129,9 @@ public class ItemAddActivity extends AppCompatActivity {
             PopupWindow popup = new PopupWindow(v,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            Drawable background = ContextCompat.getDrawable(ItemAddActivity.this,
+                    R.drawable.round_coner_popup_tags);
+            popup.setBackgroundDrawable(background);
             popup.showAtLocation(v, Gravity.CENTER, 0, 0);
 
 
