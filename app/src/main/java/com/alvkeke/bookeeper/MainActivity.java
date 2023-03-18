@@ -18,6 +18,7 @@ import com.alvkeke.bookeeper.ui.ItemAddActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -26,15 +27,20 @@ public class MainActivity extends AppCompatActivity {
 
     private final BookManager bookManager = BookManager.getInstance();
 
+    private void randomFillCate(ArrayList<String> categories) {
+        String[] c = new String[]{"餐饮", "衣物穿戴", "交通", "住宿", "娱乐", "医疗", "电子产品", "互联网服务"};
+        categories.addAll(Arrays.asList(c));
+    }
     private void randomFillBook(ArrayList<BookItem> bookItems) {
         if (bookItems == null) return;
 
-        String[] categories = new String[]{"餐饮", "衣物穿戴", "交通", "住宿", "娱乐", "医疗", "电子产品", "互联网服务"};
+        ArrayList<String> categories = bookManager.getCategories();
         Random random = new Random();
 
         for (int i=0; i<30; i++) {
             int money = random.nextInt(200) - 100;
-            BookItem item = new BookItem(money, new Date().getTime(), categories[random.nextInt(categories.length)]);
+            BookItem item = new BookItem(money, new Date().getTime(),
+                    categories.get(random.nextInt(categories.size())));
             for (int j=0; j<i; j++)
                 item.addTag("tag"+j);
             Log.e(this.toString(), "create book item: " + i);
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         bookList.setAdapter(adapter);
         bookList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         bookList.setLayoutManager(new LinearLayoutManager(this));
+        randomFillCate(bookManager.getCategories());
         randomFillBook(bookManager.getBookItems());
 
     }
