@@ -23,9 +23,11 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
 
     private final ArrayList<BookItem> bookItems;
 
-    private final int COLOR_STYLE_FONT = 0;
-    private final int COLOR_STYLE_BACKGROUND = 1;
-    private int colorStyle = COLOR_STYLE_FONT;
+    enum MoneyColorStyle {
+        COLOR_STYLE_FONT,
+        COLOR_STYLE_BACKGROUND,
+    }
+    private MoneyColorStyle colorStyle = MoneyColorStyle.COLOR_STYLE_FONT;
 
     public BookListAdapter(ArrayList<BookItem> bookItems) {
         super();
@@ -84,32 +86,28 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
 
         private void setBackColorForMoney(int money) {
             final int COLOR_INCOME = Color.rgb(255, 236, 236);
-            final int COLOR_EXPENSES = Color.rgb(223, 255, 229);
+            final int COLOR_OUTLAY = Color.rgb(223, 255, 229);
             if (money > 0) {
                 parent.setBackgroundColor(COLOR_INCOME);
-            } else if (money < 0) {
-                parent.setBackgroundColor(COLOR_EXPENSES);
             } else {
-                parent.setBackgroundColor(Color.TRANSPARENT);
+                parent.setBackgroundColor(COLOR_OUTLAY);
             }
         }
 
         private void setFontColorForMoney(int money) {
             final int COLOR_INCOME = Color.GREEN;
-            final int COLOR_EXPENSES = Color.RED;
+            final int COLOR_OUTLAY = Color.RED;
             if (money > 0) {
                 tvMoney.setTextColor(COLOR_INCOME);
-            } else if (money < 0) {
-                tvMoney.setTextColor(COLOR_EXPENSES);
             } else {
-                tvMoney.setTextColor(Color.TRANSPARENT);
+                tvMoney.setTextColor(COLOR_OUTLAY);
             }
         }
 
         private void setColorForMoney(int money) {
-            if (colorStyle == COLOR_STYLE_FONT) {
+            if (colorStyle == MoneyColorStyle.COLOR_STYLE_FONT) {
                 setFontColorForMoney(money);
-            } else if (colorStyle == COLOR_STYLE_BACKGROUND) {
+            } else if (colorStyle == MoneyColorStyle.COLOR_STYLE_BACKGROUND) {
                 setBackColorForMoney(money);
             }
         }
@@ -120,13 +118,15 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         public void setMoney(int money) {
             setColorForMoney(money);
             String sMoney;
-            if (money > 0) {
-                sMoney = "+" + money;
-            } else if (money < 0) {
-                sMoney = "" + money;
-            } else {
-                sMoney = "0";
-            }
+            char c_sign;
+            if (money < 0)
+                c_sign = '-';
+            else
+                c_sign = '+';
+
+            money = Math.abs(money);
+            sMoney = String.format(Locale.getDefault(),
+                    "%c%d.%02d", c_sign, money/100, money%100);
             tvMoney.setText(sMoney);
         }
 
@@ -156,7 +156,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         }
     }
 
-    public void setColorStyle(int colorStyle) {
+    public void setColorStyle(MoneyColorStyle colorStyle) {
         this.colorStyle = colorStyle;
     }
 
