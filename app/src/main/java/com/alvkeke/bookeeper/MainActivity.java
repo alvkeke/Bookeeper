@@ -69,8 +69,13 @@ public class MainActivity extends AppCompatActivity {
             BookItem item = new BookItem(money * 100, new Date().getTime(),
                     cates.get(random.nextInt(cates.size())),
                     accounts.get(random.nextInt(accounts.size())));
-            for (int j=0; j<i; j++)
-                item.addTag("tag"+j);
+            if (bookManager.getTags() != null)
+            {
+                for (String tag : bookManager.getTags()) {
+                    if (random.nextInt(5) == 0)
+                        item.addTag(tag);
+                }
+            }
             Log.e(this.toString(), "create book item: " + i);
             bookItems.add(item);
         }
