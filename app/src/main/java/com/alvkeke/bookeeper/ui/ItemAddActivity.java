@@ -67,9 +67,8 @@ public class ItemAddActivity extends AppCompatActivity {
                 money = Integer.parseInt(ssMoney[0]);
                 money *= 100;
             }
-            if (ssMoney.length>1 && ssMoney[1].length() != 0) {
-                String s_money_2nd = ssMoney[1];
-                if (s_money_2nd.length() > 2) s_money_2nd = s_money_2nd.substring(0, 2);
+            if (ssMoney.length>1) {
+                String s_money_2nd = (ssMoney[1] + "00").substring(0, 2);
                 money += Integer.parseInt(s_money_2nd);
             }
             int btnId = radioItemInout.getCheckedRadioButtonId();
