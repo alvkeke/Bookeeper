@@ -51,7 +51,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         }
 
         holder.setAccount(item.getAccount());
-        holder.setMoney(item.getMoney());
+        holder.setColorForMoney(item.getMoney());
+        holder.tvMoney.setText(item.getMoneyString());
         holder.setTime(item.getTime());
         holder.setCategory(item.getCategory());
         holder.setTags(item.getTags());
@@ -114,20 +115,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
 
         public void setAccount(String account) {
             if (account != null) tvAccount.setText(account);
-        }
-        public void setMoney(int money) {
-            setColorForMoney(money);
-            String sMoney;
-            char c_sign;
-            if (money < 0)
-                c_sign = '-';
-            else
-                c_sign = '+';
-
-            money = Math.abs(money);
-            sMoney = String.format(Locale.getDefault(),
-                    "%c%d.%02d", c_sign, money/100, money%100);
-            tvMoney.setText(sMoney);
         }
 
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.CHINESE);
