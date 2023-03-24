@@ -9,7 +9,7 @@ public class BookItem {
     private String moneyString;
     private long time;
     private String category;
-    private ArrayList<String> tags;
+    private ArrayList<String> tags = new ArrayList<>();
     private String account;
 
     public BookItem(int money, long time, String category, String account) {
@@ -71,9 +71,6 @@ public class BookItem {
          this.tags = tags;
     }
     public void addTag(String tag) {
-        if (tags == null) {
-            tags = new ArrayList<>();
-        }
         tags.add(tag);
     }
 
