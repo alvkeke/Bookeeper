@@ -22,6 +22,16 @@ import java.util.Locale;
 public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHolder> {
 
     private final ArrayList<BookItem> bookItems;
+    private OnItemClickListener itemClickListener;
+    private OnItemLongClickListener itemLongClickListener;
+
+    public interface OnItemClickListener {
+        void OnItemClick(View view, int position);
+    }
+
+    public interface OnItemLongClickListener {
+        boolean OnItemLongClick(View view, int position);
+    }
 
     enum MoneyColorStyle {
         COLOR_STYLE_FONT,
@@ -55,6 +65,13 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         holder.setTime(item.getTime());
         holder.setCategory(item.getCategory());
         holder.setTags(item.getTags());
+        if (itemClickListener != null) {
+            holder.setHolderClickListener(view -> itemClickListener.OnItemClick(view, position));
+        }
+        if (itemLongClickListener != null) {
+            holder.setHolderLongClickListener(view ->
+                    itemLongClickListener.OnItemLongClick(view, position));
+        }
     }
 
     @Override
@@ -64,6 +81,14 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
 
     public void setColorStyle(MoneyColorStyle colorStyle) {
         this.colorStyle = colorStyle;
+    }
+
+    public void setItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
+    }
+
+    public void setItemLongClickListener(OnItemLongClickListener listener) {
+        this.itemLongClickListener = listener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -85,6 +110,14 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             tvCategory = itemView.findViewById(R.id.book_item_category);
             tvTime = itemView.findViewById(R.id.book_item_time);
             tvTags = itemView.findViewById(R.id.book_item_tags);
+        }
+
+        public void setHolderClickListener(View.OnClickListener clickListener) {
+            parent.setOnClickListener(clickListener);
+        }
+
+        public void setHolderLongClickListener(View.OnLongClickListener listener) {
+            parent.setOnLongClickListener(listener);
         }
 
         /**

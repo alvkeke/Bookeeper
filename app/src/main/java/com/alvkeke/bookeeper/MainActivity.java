@@ -1,5 +1,6 @@
 package com.alvkeke.bookeeper;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
-import com.alvkeke.bookeeper.ui.ItemAddActivity;
+import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 
 import java.util.ArrayList;
@@ -81,26 +82,68 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    class BtnAddItemClickListener implements View.OnClickListener {
-
-        ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+    ActivityResultLauncher<Intent> itemDetailActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == RESULT_OK) {
-                        bookItemListAdapter.notifyDataSetChanged();
+                        Intent intent = result.getData();
+                        assert intent != null;
+                        int index = intent.getIntExtra(ItemDetailActivity.INTENT_ITEM_INDEX, -1);
+                        assert index != -1;
+                        bookItemListAdapter.notifyItemChanged(index);
                     }
                 }
-        });
+            });
+
+    class BtnAddItemClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(MainActivity.this, ItemAddActivity.class);
-            launcher.launch(intent);
+            Intent intent = new Intent(MainActivity.this, ItemDetailActivity.class);
+            itemDetailActivityLauncher.launch(intent);
         }
 
+    }
+
+    class BookItemClickListener implements BookListAdapter.OnItemClickListener{
+
+        private final CharSequence[] bookMenu = new CharSequence[]
+                {"修改", "删除", "取消"};
+        private void showItemMenu(int pos) {
+            BookManager manager = BookManager.getInstance();
+            if (pos >= manager.getBookItems().size())
+            {
+                Log.e(MainActivity.this.toString(), "Cannot get book item at: " + pos);
+                return;
+            }
+            BookItem item = manager.getBookItems().get(pos);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(item.getCategory() + "-" + item.getAccount() + ":" + item.getMoneyString())
+                    .setItems(bookMenu, (dialogInterface, i) -> {
+                        Log.d("Main", "index: " + i);
+                        switch (i) {
+                            case 0:
+                                Intent intent = new Intent(MainActivity.this, ItemDetailActivity.class);
+                                intent.putExtra(ItemDetailActivity.INTENT_ITEM_INDEX, pos);
+                                itemDetailActivityLauncher.launch(intent);
+                                break;
+                            case 1:
+                                manager.getBookItems().remove(pos);
+                                MainActivity.this.bookItemListAdapter.notifyItemRemoved(pos);
+                            case 2:
+                            default:
+                        }
+                    });
+            builder.create().show();
+        }
+
+        @Override
+        public void OnItemClick(View view, int position) {
+            showItemMenu(position);
+        }
     }
 
     @Override
@@ -117,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         bookItemList.setAdapter(bookItemListAdapter);
         bookItemList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         bookItemList.setLayoutManager(new LinearLayoutManager(this));
+        bookItemListAdapter.setItemClickListener(new BookItemClickListener());
 
         randomFillAccounts(bookManager.getAccounts());
         randomFillTags(bookManager.getTags());

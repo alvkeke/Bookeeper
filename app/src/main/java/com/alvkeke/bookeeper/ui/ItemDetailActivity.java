@@ -30,9 +30,12 @@ import com.alvkeke.bookeeper.data.BookManager;
 import java.util.ArrayList;
 
 
-public class ItemAddActivity extends AppCompatActivity {
+public class ItemDetailActivity extends AppCompatActivity {
+
+    public static final String INTENT_ITEM_INDEX = "INTENT_ITEM_INDEX";
 
     private final BookManager bookManager = BookManager.getInstance();
+    private int targetIndex;
     private Spinner spinnerCategory, spinnerAccount;
     private Button btnItemOk, btnItemCancel, btnItemDate, btnItemTime, btnItemTags;
     private RadioGroup radioItemInout;
@@ -40,7 +43,7 @@ public class ItemAddActivity extends AppCompatActivity {
     private EditText editItemMoney;
     private long timeItem = 0;
 
-    private ArrayAdapter<String> spinnerAdapterIncome, spinnerAdapterOutlay;
+    private ArrayAdapter<String> spinnerAdapterIncome, spinnerAdapterOutlay, spinnerAdapterAccount;
     private final ArrayList<String> selectedTags = new ArrayList<>();
 
     class OnItemAddCancel implements View.OnClickListener {
@@ -48,8 +51,8 @@ public class ItemAddActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent();
-            ItemAddActivity.this.setResult(RESULT_CANCELED, intent);
-            ItemAddActivity.this.finish();
+            ItemDetailActivity.this.setResult(RESULT_CANCELED, intent);
+            ItemDetailActivity.this.finish();
         }
     }
     class OnItemAddOk implements View.OnClickListener {
@@ -75,20 +78,35 @@ public class ItemAddActivity extends AppCompatActivity {
             if (btnId == R.id.item_add_radio_out) {
                 money *= -1;
             }
-            BookItem item = new BookItem(money, timeItem, category, account);
+            BookItem item;
+            if (targetIndex == -1) {
+                item = new BookItem(money, timeItem, category, account);
+                targetIndex = bookManager.getBookItems().size();
+                bookManager.addBookItem(item);
+            } else {
+                if (targetIndex >= bookManager.getBookItems().size()) {
+                    Log.e("ItemAdd", "index out of bound : " + targetIndex);
+                    return;
+                }
+                item = bookManager.getBookItems().get(targetIndex);
+                item.setMoney(money);
+                item.setTime(timeItem);
+                item.setCategory(category);
+                item.setAccount(account);
+            }
             item.setTagList(selectedTags);
-            bookManager.addBookItem(item);
 
             Intent intent = new Intent();
-            ItemAddActivity.this.setResult(RESULT_OK, intent);
-            ItemAddActivity.this.finish();
+            intent.putExtra(INTENT_ITEM_INDEX, targetIndex);
+            ItemDetailActivity.this.setResult(RESULT_OK, intent);
+            ItemDetailActivity.this.finish();
         }
     }
 
     class OnItemTagsPopup implements View.OnClickListener, View.OnLongClickListener {
 
         private void popup() {
-            View v = LayoutInflater.from(ItemAddActivity.this)
+            View v = LayoutInflater.from(ItemDetailActivity.this)
                     .inflate(R.layout.popup_tags, null, false);
 
             ConstraintLayout tags_layout = v.findViewById(R.id.popup_tags_container);
@@ -99,7 +117,7 @@ public class ItemAddActivity extends AppCompatActivity {
 
             ArrayList<String> tags = bookManager.getTags();
             for (int i=0; i<tags.size(); i++) {
-                CheckBox cb = new CheckBox(ItemAddActivity.this);
+                CheckBox cb = new CheckBox(ItemDetailActivity.this);
                 cb.setText(tags.get(i));
                 cb.setId(View.generateViewId());
                 for (String t_cur : selectedTags) {
@@ -116,7 +134,7 @@ public class ItemAddActivity extends AppCompatActivity {
             PopupWindow popup = new PopupWindow(v,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, false);
-            Drawable background = ContextCompat.getDrawable(ItemAddActivity.this,
+            Drawable background = ContextCompat.getDrawable(ItemDetailActivity.this,
                     R.drawable.round_coner_popup_tags);
             popup.setBackgroundDrawable(background);
             popup.showAtLocation(v, Gravity.CENTER, 0, 0);
@@ -208,7 +226,7 @@ public class ItemAddActivity extends AppCompatActivity {
         spinnerAdapterIncome = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 bookManager.getIncomeCategories());
-        ArrayAdapter<String> spinnerAdapterAccount = new ArrayAdapter<>(this,
+        spinnerAdapterAccount = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 bookManager.getAccounts());
 
@@ -222,9 +240,45 @@ public class ItemAddActivity extends AppCompatActivity {
         btnItemTags.setOnClickListener(new OnItemTagsPopup());
         btnItemTags.setOnLongClickListener(new OnItemTagsPopup());
 
+        Intent intent = getIntent();
+        targetIndex = intent.getIntExtra(INTENT_ITEM_INDEX, -1);
+        if (targetIndex != -1) {
+            fillItemData(targetIndex);
+        }
+
         // auto popup the input method
         if (editItemMoney.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+    }
+
+    void fillItemData(int pos) {
+        BookItem item = bookManager.getBookItems().get(pos);
+        String sMoney = item.getMoneyString().replace("+", "").replace("-", "");
+        editItemMoney.setText(sMoney);
+        for (int i = 0; i<spinnerAdapterAccount.getCount(); i++) {
+            if (spinnerAdapterAccount.getItem(i).equals(item.getAccount())) {
+                spinnerAccount.setSelection(i);
+                break;
+            }
+        }
+
+        ArrayAdapter<String> inoutAdapter;
+        if (item.getMoney() > 0) {
+            radioIncome.setChecked(true);
+            inoutAdapter = spinnerAdapterIncome;
+        } else {
+            radioOutlay.setChecked(true);
+            inoutAdapter = spinnerAdapterOutlay;
+        }
+
+        for (int i=0; i<inoutAdapter.getCount(); i++) {
+            if (inoutAdapter.getItem(i).equals(item.getCategory())) {
+                spinnerCategory.setSelection(i);
+                break;
+            }
+        }
+
+        selectedTags.addAll(item.getTags());
     }
 }
