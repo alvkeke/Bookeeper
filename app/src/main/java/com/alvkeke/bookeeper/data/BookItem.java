@@ -21,6 +21,7 @@ public class BookItem {
 
     public void setMoney(int money) {
         this.money = money;
+        this.moneyString = null;    // reset to re-gen the money string
     }
 
     public int getMoney() {
@@ -36,9 +37,9 @@ public class BookItem {
         else
             c_sign = '+';
 
-        money = Math.abs(money);
+        int x = Math.abs(money);
         moneyString = String.format(Locale.getDefault(),
-                "%c%d.%02d", c_sign, money/100, money%100);
+                "%c%d.%02d", c_sign, x/100, x%100);
         return moneyString;
     }
 
