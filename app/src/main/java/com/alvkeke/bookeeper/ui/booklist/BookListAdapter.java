@@ -51,8 +51,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         }
 
         holder.setAccount(item.getAccount());
-        holder.setColorForMoney(item.getMoney());
-        holder.tvMoney.setText(item.getMoneyString());
+        holder.setMoney(item.getMoney(), item.getMoneyString());
         holder.setTime(item.getTime());
         holder.setCategory(item.getCategory());
         holder.setTags(item.getTags());
@@ -63,6 +62,9 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         return bookItems.size();
     }
 
+    public void setColorStyle(MoneyColorStyle colorStyle) {
+        this.colorStyle = colorStyle;
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -85,6 +87,27 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             tvTags = itemView.findViewById(R.id.book_item_tags);
         }
 
+        /**
+         * Set money for money filed
+         * @param money real number of money
+         * @param sMoney use specific string if sMoney != null, otherwise generate a new string
+         */
+        public void setMoney(int money, String sMoney) {
+            setColorForMoney(money);
+            if (sMoney != null) {
+                tvMoney.setText(sMoney);
+            } else {
+                char c_sign;
+                if (money < 0)
+                    c_sign = '-';
+                else
+                    c_sign = '+';
+
+                money = Math.abs(money);
+                tvMoney.setText(String.format(Locale.getDefault(),
+                        "%c%d.%02d", c_sign, money/100, money%100));
+            }
+        }
         private void setBackColorForMoney(int money) {
             final int COLOR_INCOME = Color.rgb(255, 236, 236);
             final int COLOR_OUTLAY = Color.rgb(223, 255, 229);
@@ -142,9 +165,4 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             tvTags.setText(sb.toString());
         }
     }
-
-    public void setColorStyle(MoneyColorStyle colorStyle) {
-        this.colorStyle = colorStyle;
-    }
-
 }
