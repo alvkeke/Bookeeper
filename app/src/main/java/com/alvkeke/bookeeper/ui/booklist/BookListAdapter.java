@@ -2,6 +2,7 @@ package com.alvkeke.bookeeper.ui.booklist;
 
 import android.graphics.Color;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.util.Locale;
 public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHolder> {
 
     private final ArrayList<BookItem> bookItems;
+    private SparseBooleanArray selectItems = new SparseBooleanArray();
     private OnItemClickListener itemClickListener;
     private OnItemLongClickListener itemLongClickListener;
 
@@ -32,12 +34,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
     public interface OnItemLongClickListener {
         boolean OnItemLongClick(View view, int position);
     }
-
-    enum MoneyColorStyle {
-        COLOR_STYLE_FONT,
-        COLOR_STYLE_BACKGROUND,
-    }
-    private MoneyColorStyle colorStyle = MoneyColorStyle.COLOR_STYLE_FONT;
 
     public BookListAdapter(ArrayList<BookItem> bookItems) {
         super();
@@ -65,6 +61,11 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         holder.setTime(item.getTime());
         holder.setCategory(item.getCategory());
         holder.setTags(item.getTags());
+        if (selectItems.get(position)){
+            holder.setBackground(Color.LTGRAY);
+        } else {
+            holder.setBackground(Color.WHITE);
+        }
         if (itemClickListener != null) {
             holder.setHolderClickListener(view -> itemClickListener.OnItemClick(view, position));
         }
@@ -79,8 +80,42 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         return bookItems.size();
     }
 
-    public void setColorStyle(MoneyColorStyle colorStyle) {
-        this.colorStyle = colorStyle;
+    public void itemSelectSet(int pos, boolean isSelected) {
+        if (isSelected)
+            selectItems.put(pos, true);
+        else
+            selectItems.delete(pos);
+    }
+    public void itemSelectToggle(int pos) {
+        boolean now = selectItems.get(pos, false);
+        if (now)
+            selectItems.delete(pos);
+        else
+            selectItems.put(pos, true);
+    }
+    public void itemSelectClear() {
+        selectItems.clear();
+    }
+    public void itemSelectAll() {
+        for (int i=0; i<bookItems.size(); i++) {
+            selectItems.put(i, true);
+        }
+    }
+    public int getSelectedItemCount() {
+        return selectItems.size();
+    }
+    public void deleteSelectedItems() {
+        ArrayList<BookItem> items = new ArrayList<>();
+        for (int i=0; i<selectItems.size(); i++) {
+            int index = selectItems.keyAt(i);
+            items.add(bookItems.get(index));
+        }
+        bookItems.removeAll(items);
+        selectItems.clear();
+    }
+    public int getSelectedItem_ifOnlyOne() {
+        if (selectItems.size() != 1) return -1;
+        return selectItems.keyAt(0);
     }
 
     public void setItemClickListener(OnItemClickListener listener) {
@@ -141,31 +176,16 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
                         "%c%d.%02d", c_sign, money/100, money%100));
             }
         }
-        private void setBackColorForMoney(int money) {
-            final int COLOR_INCOME = Color.rgb(255, 236, 236);
-            final int COLOR_OUTLAY = Color.rgb(223, 255, 229);
-            if (money > 0) {
-                parent.setBackgroundColor(COLOR_INCOME);
-            } else {
-                parent.setBackgroundColor(COLOR_OUTLAY);
-            }
+        public void setBackground(int color) {
+            parent.setBackgroundColor(color);
         }
-
-        private void setFontColorForMoney(int money) {
+        private void setColorForMoney(int money) {
             final int COLOR_INCOME = Color.GREEN;
             final int COLOR_OUTLAY = Color.RED;
             if (money > 0) {
                 tvMoney.setTextColor(COLOR_INCOME);
             } else {
                 tvMoney.setTextColor(COLOR_OUTLAY);
-            }
-        }
-
-        private void setColorForMoney(int money) {
-            if (colorStyle == MoneyColorStyle.COLOR_STYLE_FONT) {
-                setFontColorForMoney(money);
-            } else if (colorStyle == MoneyColorStyle.COLOR_STYLE_BACKGROUND) {
-                setBackColorForMoney(money);
             }
         }
 

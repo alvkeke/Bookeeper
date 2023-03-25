@@ -4,6 +4,9 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -11,6 +14,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private final BookManager bookManager = BookManager.getInstance();
     private RecyclerView bookItemList;
     private BookListAdapter bookItemListAdapter;
+    private Button btnAddItem;
+
+    private MenuItem menuItemAdd, menuItemEdit, menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
     private void randomFillAccounts(ArrayList<String> accounts) {
         String[] c = new String[] {"支付宝", "微信支付", "银行卡", "信用卡"};
@@ -106,9 +113,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-    class BookItemClickListener implements BookListAdapter.OnItemClickListener{
-
+    private void reSetMenuVisible() {
+        int count = bookItemListAdapter.getSelectedItemCount();
+        if (count == 0) {
+            menuItemAdd.setVisible(true);
+            menuItemDelete.setVisible(false);
+            menuItemEdit.setVisible(false);
+            menuItemSelectAll.setVisible(false);
+            menuItemDeselect.setVisible(false);
+        } else {
+            menuItemAdd.setVisible(false);
+            menuItemDelete.setVisible(true);
+            menuItemEdit.setVisible(count == 1);
+            menuItemSelectAll.setVisible(true);
+            menuItemDeselect.setVisible(true);
+        }
+    }
+    class BookItemClickListener implements BookListAdapter.OnItemLongClickListener,
+            BookListAdapter.OnItemClickListener{
+        private final BookListAdapter adapter;
+        private boolean isSelectMode = false;
+        public BookItemClickListener(BookListAdapter adapter) {
+            this.adapter = adapter;
+        }
         private final CharSequence[] bookMenu = new CharSequence[]
                 {"修改", "删除", "取消"};
         private void showItemMenu(int pos) {
@@ -139,10 +166,28 @@ public class MainActivity extends AppCompatActivity {
                     });
             builder.create().show();
         }
-
+        private void toggleItemSelect(int pos) {
+            adapter.itemSelectToggle(pos);
+            adapter.notifyItemChanged(pos);
+        }
         @Override
         public void OnItemClick(View view, int position) {
-            showItemMenu(position);
+            if (isSelectMode) {
+                toggleItemSelect(position);
+                if (adapter.getSelectedItemCount() == 0)
+                    isSelectMode = false;
+                reSetMenuVisible();
+            } else {
+                showItemMenu(position);
+            }
+        }
+
+        @Override
+        public boolean OnItemLongClick(View view, int position) {
+            if (!isSelectMode) isSelectMode = true;
+            toggleItemSelect(position);
+            reSetMenuVisible();
+            return true;
         }
     }
 
@@ -152,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bookItemList = findViewById(R.id.list_book_list);
-        Button btnAddItem = findViewById(R.id.btn_add_item);
+        btnAddItem = findViewById(R.id.btn_add_item);
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
@@ -160,7 +205,9 @@ public class MainActivity extends AppCompatActivity {
         bookItemList.setAdapter(bookItemListAdapter);
         bookItemList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         bookItemList.setLayoutManager(new LinearLayoutManager(this));
-        bookItemListAdapter.setItemClickListener(new BookItemClickListener());
+        BookItemClickListener bookItemClickListener = new BookItemClickListener(bookItemListAdapter);
+        bookItemListAdapter.setItemClickListener(bookItemClickListener);
+        bookItemListAdapter.setItemLongClickListener(bookItemClickListener);
 
         randomFillAccounts(bookManager.getAccounts());
         randomFillTags(bookManager.getTags());
@@ -168,5 +215,61 @@ public class MainActivity extends AppCompatActivity {
         randomFillCateOut(bookManager.getOutlayCategories());
         randomFillBook(bookManager.getBookItems());
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_activity_top, menu);
+        menuItemAdd = menu.findItem(R.id.menu_item_main_add);
+        menuItemEdit = menu.findItem(R.id.menu_item_main_edit);
+        menuItemDelete = menu.findItem(R.id.menu_item_main_delete);
+        menuItemSelectAll = menu.findItem(R.id.menu_item_main_select_all);
+        menuItemDeselect = menu.findItem(R.id.menu_item_main_deselect);
+        return true; //super.onCreateOptionsMenu(menu);
+    }
+
+    private void onMenuAdd() {
+        btnAddItem.callOnClick();
+    }
+    private void onMenuDelete() {
+        bookItemListAdapter.deleteSelectedItems();
+        bookItemListAdapter.notifyDataSetChanged();
+        reSetMenuVisible();
+    }
+    private void onMenuSelectAll() {
+        bookItemListAdapter.itemSelectAll();
+        bookItemListAdapter.notifyDataSetChanged();
+        reSetMenuVisible();
+    }
+    private void onMenuDeselect() {
+        bookItemListAdapter.itemSelectClear();
+        bookItemListAdapter.notifyDataSetChanged();
+        reSetMenuVisible();
+    }
+    private void onMenuEdit() {
+        int index = bookItemListAdapter.getSelectedItem_ifOnlyOne();
+        if (index == -1)
+            return;
+        bookItemListAdapter.itemSelectSet(index, false);
+        bookItemListAdapter.notifyItemChanged(index);
+        reSetMenuVisible();
+        Intent intent = new Intent(MainActivity.this, ItemDetailActivity.class);
+        intent.putExtra(ItemDetailActivity.INTENT_ITEM_INDEX, index);
+        itemDetailActivityLauncher.launch(intent);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_item_main_add)
+                onMenuAdd();
+        if (id == R.id.menu_item_main_delete)
+                onMenuDelete();
+        if (id == R.id.menu_item_main_select_all)
+                onMenuSelectAll();
+        if (id == R.id.menu_item_main_deselect)
+                onMenuDeselect();
+        if (id == R.id.menu_item_main_edit)
+                onMenuEdit();
+        return super.onOptionsItemSelected(item);
     }
 }
