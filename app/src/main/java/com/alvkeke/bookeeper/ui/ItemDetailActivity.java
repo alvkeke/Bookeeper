@@ -1,5 +1,7 @@
 package com.alvkeke.bookeeper.ui;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,11 +14,13 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.helper.widget.Flow;
@@ -28,6 +32,9 @@ import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class ItemDetailActivity extends AppCompatActivity {
@@ -41,7 +48,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     private RadioGroup radioItemInout;
     private RadioButton radioIncome, radioOutlay;
     private EditText editItemMoney;
-    private long timeItem = 0;
+    private Date newItemDateTime;
 
     private ArrayAdapter<String> spinnerAdapterIncome, spinnerAdapterOutlay, spinnerAdapterAccount;
     private final ArrayList<String> selectedTags = new ArrayList<>();
@@ -80,7 +87,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
             BookItem item;
             if (targetIndex == -1) {
-                item = new BookItem(money, timeItem, category, account);
+                item = new BookItem(money, newItemDateTime.getTime(), category, account);
                 targetIndex = bookManager.getBookItems().size();
                 bookManager.addBookItem(item);
             } else {
@@ -90,7 +97,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                 }
                 item = bookManager.getBookItems().get(targetIndex);
                 item.setMoney(money);
-                item.setTime(timeItem);
+                item.setTime(newItemDateTime.getTime());
                 item.setCategory(category);
                 item.setAccount(account);
             }
@@ -202,6 +209,58 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
         }
     }
+
+    class OnBtnDateClick implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public void onClick(View view) {
+            int year, month, day;
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(newItemDateTime);
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dialog = new DatePickerDialog(ItemDetailActivity.this,
+                    this, year, month, day);
+            dialog.show();
+        }
+        @Override
+        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+            Calendar calendar = Calendar.getInstance();
+            // to keep the hours/minutes data
+            calendar.setTime(newItemDateTime);
+            calendar.set(i, i1, i2);
+            newItemDateTime = calendar.getTime();
+            fillDateTimeBtnTitle(newItemDateTime);
+        }
+    }
+
+    class OnBtnTimeClick implements View.OnClickListener, TimePickerDialog.OnTimeSetListener {
+
+        @Override
+        public void onClick(View view) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(newItemDateTime);
+            TimePickerDialog dialog = new TimePickerDialog(ItemDetailActivity.this,
+                    this,
+                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
+                    true);
+            dialog.show();
+        }
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+            Calendar calendar = Calendar.getInstance();
+            // to keep the years/month/days data
+            calendar.setTime(newItemDateTime);
+            calendar.set(Calendar.HOUR_OF_DAY, i);
+            calendar.set(Calendar.MINUTE, i1);
+            newItemDateTime = calendar.getTime();
+            fillDateTimeBtnTitle(newItemDateTime);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -239,22 +298,41 @@ public class ItemDetailActivity extends AppCompatActivity {
         btnItemCancel.setOnClickListener(new OnItemAddCancel());
         btnItemTags.setOnClickListener(new OnItemTagsPopup());
         btnItemTags.setOnLongClickListener(new OnItemTagsPopup());
+        btnItemDate.setOnClickListener(new OnBtnDateClick());
+        btnItemTime.setOnClickListener(new OnBtnTimeClick());
 
         Intent intent = getIntent();
         targetIndex = intent.getIntExtra(INTENT_ITEM_INDEX, -1);
         if (targetIndex != -1) {
+            // newDate will be update in this function
             fillItemData(targetIndex);
+        } else {
+            newItemDateTime = new Date();
         }
+        fillDateTimeBtnTitle(newItemDateTime);
 
         // auto popup the input method
         if (editItemMoney.requestFocus()) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+    }
+
+    void fillDateTimeBtnTitle(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        btnItemDate.setText(String.format(Locale.getDefault(), "%04d-%02d-%02d",
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        btnItemTime.setText(String.format(Locale.getDefault(), "%02d:%02d",
+                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
     }
 
     void fillItemData(int pos) {
         BookItem item = bookManager.getBookItems().get(pos);
-        String sMoney = item.getMoneyString().replace("+", "").replace("-", "");
+        newItemDateTime = new Date(item.getTime());
+        String sMoney = item.getMoneyString().substring(1);
         editItemMoney.setText(sMoney);
         for (int i = 0; i<spinnerAdapterAccount.getCount(); i++) {
             if (spinnerAdapterAccount.getItem(i).equals(item.getAccount())) {
