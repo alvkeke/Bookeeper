@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             else
                 cates = cates_out;
 
-            BookItem item = new BookItem(money * 100, new Date().getTime(),
+            BookItem item = new BookItem(money * 100, random.nextLong() % new Date().getTime(),
                     cates.get(random.nextInt(cates.size())),
                     accounts.get(random.nextInt(accounts.size())));
             if (bookManager.getTags() != null)
