@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.storage.StorageManager;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private final BookManager bookManager = BookManager.getInstance();
+    private StorageManager storageManager; // = StorageManager.getInstance();
     private RecyclerView bookItemList;
     private BookListAdapter bookItemListAdapter;
     private Button btnAddItem;
@@ -208,12 +210,16 @@ public class MainActivity extends AppCompatActivity {
         bookItemListAdapter.setItemClickListener(bookItemClickListener);
         bookItemListAdapter.setItemLongClickListener(bookItemClickListener);
 
+        storageManager = StorageManager.getInstance(this);
         randomFillAccounts(bookManager.getAccounts());
         randomFillTags(bookManager.getTags());
         randomFillCateIn(bookManager.getIncomeCategories());
         randomFillCateOut(bookManager.getOutlayCategories());
         randomFillBook(bookManager.getBookItems());
+        long id = storageManager.addBookItem(bookManager.getBookItems().get(0));
+        Log.e(this.toString(), "added item id: " + id);
 
+        storageManager.storageDestroy();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

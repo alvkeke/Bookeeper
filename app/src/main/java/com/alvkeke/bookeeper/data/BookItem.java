@@ -5,6 +5,7 @@ import java.util.Locale;
 
 public class BookItem {
 
+    private long id;
     private int money;
     private String moneyString;
     private long time;
@@ -19,6 +20,12 @@ public class BookItem {
         this.account = account;
     }
 
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
     public void setMoney(int money) {
         this.money = money;
         this.moneyString = null;    // reset to re-gen the money string
