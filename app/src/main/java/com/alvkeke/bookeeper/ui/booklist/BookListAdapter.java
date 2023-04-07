@@ -104,20 +104,13 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
     public int getSelectedItemCount() {
         return selectItems.size();
     }
-    public void deleteSelectedItems() {
-        ArrayList<BookItem> items = new ArrayList<>();
-        for (int i=0; i<selectItems.size(); i++) {
-            int index = selectItems.keyAt(i);
-            items.add(bookItems.get(index));
+    public int[] getSelectedItemIndex() {
+        int[] ret = new int[getSelectedItemCount()];
+        for (int i=0; i<getSelectedItemCount(); i++) {
+            ret[i] = selectItems.keyAt(i);
         }
-        bookItems.removeAll(items);
-        selectItems.clear();
+        return ret;
     }
-    public int getSelectedItem_ifOnlyOne() {
-        if (selectItems.size() != 1) return -1;
-        return selectItems.keyAt(0);
-    }
-
     public void setItemClickListener(OnItemClickListener listener) {
         this.itemClickListener = listener;
     }

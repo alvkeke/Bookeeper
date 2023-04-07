@@ -44,6 +44,15 @@ public class BookManager {
         return bookItems;
     }
 
+    public ArrayList<BookItem> getBookItemsWithIndex(int[] idx) {
+        ArrayList<BookItem> items = new ArrayList<>();
+        if (idx == null) return items;
+        for (int i : idx) {
+            items.add(bookItems.get(i));
+        }
+        return items;
+    }
+
     public void addBookItem(BookItem e) {
         if (e != null) {
             this.bookItems.add(e);

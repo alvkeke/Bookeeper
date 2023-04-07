@@ -227,8 +227,14 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Delete Book Items")
                 .setMessage("Are you really to delete these item(s)?")
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    bookItemListAdapter.deleteSelectedItems();
-                    bookItemListAdapter.notifyDataSetChanged();
+                    int[] item_idx = bookItemListAdapter.getSelectedItemIndex();
+                    ArrayList<BookItem> items = bookManager.getBookItemsWithIndex(item_idx);
+                    for (BookItem e : items) {
+                        int idx = bookManager.getBookItems().indexOf(e);
+                        bookManager.getBookItems().remove(e);
+                        bookItemListAdapter.notifyItemRemoved(idx);
+                    }
+                    bookItemListAdapter.itemSelectClear();
                     reSetMenuVisible();
                 })
                 .setNegativeButton("Cancel", null)
