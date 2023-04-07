@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                         min_idx = Math.min(idx, min_idx);
                         bookManager.getBookItems().remove(e);
                         bookItemListAdapter.notifyItemRemoved(idx);
+                        storageManager.delBookItem(e.getId());
                     }
                     bookItemListAdapter.notifyItemRangeChanged(min_idx,
                             bookItemListAdapter.getItemCount());
