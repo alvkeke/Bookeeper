@@ -243,12 +243,12 @@ public class MainActivity extends AppCompatActivity {
     }
     private void onMenuSelectAll() {
         bookItemListAdapter.itemSelectAll();
-        bookItemListAdapter.notifyDataSetChanged();
+        bookItemListAdapter.notifyItemRangeChanged(0, bookItemListAdapter.getItemCount());
         reSetMenuVisible();
     }
     private void onMenuDeselect() {
         bookItemListAdapter.itemSelectClear();
-        bookItemListAdapter.notifyDataSetChanged();
+        bookItemListAdapter.notifyItemRangeChanged(0, bookItemListAdapter.getItemCount());
         reSetMenuVisible();
     }
     @Override
