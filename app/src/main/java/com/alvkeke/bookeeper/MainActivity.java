@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
     private void randomFillAccounts(ArrayList<String> accounts) {
         String[] c = new String[] {"支付宝", "微信支付", "银行卡", "信用卡"};
         accounts.addAll(Arrays.asList(c));
+//        for (String s : c) {
+//            accounts.add(s);
+//            storageManager.addAccount(s);
+//        }
     }
     private void randomFillTags(ArrayList<String> tags) {
         for (int i=0; i<20; i++) {
@@ -157,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
                                 itemDetailActivityLauncher.launch(intent);
                                 break;
                             case 1:
+                                BookItem e = manager.getBookItems().get(pos);
+                                storageManager.delBookItem(e.getId());
                                 manager.getBookItems().remove(pos);
                                 bookItemListAdapter.notifyItemRemoved(pos);
                                 bookItemListAdapter.notifyItemRangeChanged(pos,
@@ -211,15 +217,11 @@ public class MainActivity extends AppCompatActivity {
         bookItemListAdapter.setItemLongClickListener(bookItemClickListener);
 
         storageManager = StorageManager.getInstance(this);
-        randomFillAccounts(bookManager.getAccounts());
-        randomFillTags(bookManager.getTags());
-        randomFillCateIn(bookManager.getIncomeCategories());
-        randomFillCateOut(bookManager.getOutlayCategories());
-        randomFillBook(bookManager.getBookItems());
-        long id = storageManager.addBookItem(bookManager.getBookItems().get(0));
-        Log.e(this.toString(), "added item id: " + id);
 
-        storageManager.storageDestroy();
+        storageManager.loadAccounts(bookManager.getAccounts());
+        storageManager.loadCategories(bookManager.getIncomeCategories());
+        storageManager.loadCategories(bookManager.getOutlayCategories());
+        storageManager.loadBookItems(bookManager.getBookItems());
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

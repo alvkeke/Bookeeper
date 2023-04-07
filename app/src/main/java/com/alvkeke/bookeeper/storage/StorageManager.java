@@ -2,36 +2,41 @@ package com.alvkeke.bookeeper.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import com.alvkeke.bookeeper.data.Account;
 import com.alvkeke.bookeeper.data.BookItem;
+import com.alvkeke.bookeeper.data.Category;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class StorageManager {
 
-    public final String FILE_DATABASE = "data.sqlite3";
-    public final String TABLE_BOOK_ITEMS = "book_items";
-    public final String KEY_BOOK_ID = "item_id";
-    public final String KEY_BOOK_MONEY = "money";
-    public final String KEY_BOOK_TIME = "time";
-    public final String KEY_BOOK_ACCOUNT = "account_id";
-    public final String KEY_BOOK_CATEGORY = "category_id";
-    public final String KEY_BOOK_TAG_IDS = "tag_ids";
-    public final String TABLE_CATEGORIES = "categories";
-    public final String KEY_CATEGORY_ID = "category_id";
-    public final String KEY_CATEGORY_NAME = "category_name";
-    public final String TABLE_ACCOUNTS = "accounts";
-    public final String KEY_ACCOUNT_ID = "account_id";
-    public final String KEY_ACCOUNT_NAME = "account_name";
-    public final String TABLE_TAGS = "tags";
-    public final String KEY_TAG_ID = "tag_id";
-    public final String KEY_TAG_NAME = "tag_name";
-    public final String TABLE_MANAGE = "table_manage";
-    public final String KEY_VERSION = "version";
+    public final static String FILE_DATABASE = "data.sqlite3";
+    public final static String TABLE_BOOK_ITEMS = "book_items";
+    public final static String KEY_BOOK_ID = "item_id";
+    public final static String KEY_BOOK_MONEY = "money";
+    public final static String KEY_BOOK_TIME = "time";
+    public final static String KEY_BOOK_ACCOUNT = "account_id";
+    public final static String KEY_BOOK_CATEGORY = "category_id";
+    public final static String KEY_BOOK_TAGS = "tags";
+    public final static String TABLE_CATEGORIES = "categories";
+    public final static String KEY_CATEGORY_ID = "category_id";
+    public final static String KEY_CATEGORY_NAME = "category_name";
+    public final static String TABLE_ACCOUNTS = "accounts";
+    public final static String KEY_ACCOUNT_ID = "account_id";
+    public final static String KEY_ACCOUNT_NAME = "account_name";
+    public final static String TABLE_TAGS = "tags";
+    public final static String KEY_TAG_ID = "tag_id";
+    public final static String KEY_TAG_NAME = "tag_name";
+    public final static String TABLE_MANAGE = "table_manage";
+    public final static String KEY_VERSION = "version";
 
     private static Context mContext;
     private static StorageManager manager = null;
@@ -50,9 +55,9 @@ public class StorageManager {
                 KEY_BOOK_ID, "INTEGER PRIMARY KEY AUTOINCREMENT",
                 KEY_BOOK_MONEY, "INTEGER NOT NULL",
                 KEY_BOOK_TIME, "INTEGER NOT NULL",
-                KEY_BOOK_ACCOUNT, "INTEGER NOT NULL",
-                KEY_BOOK_CATEGORY, "INTEGER NOT NULL",
-                KEY_BOOK_TAG_IDS, "TEXT"
+                KEY_BOOK_ACCOUNT, "TEXT NOT NULL",
+                KEY_BOOK_CATEGORY, "TEXT NOT NULL",
+                KEY_BOOK_TAGS, "TEXT"
         ));
         database.execSQL(String.format(
                 "CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s);",
@@ -108,27 +113,176 @@ public class StorageManager {
         return manager;
     }
     public void storageDestroy() {
+        assert database != null;
         database.close();
         new File(database.getPath()).delete();
     }
 
     public long addBookItem(BookItem item) {
-        assert manager != null;
+        assert database != null;
         ContentValues values = new ContentValues();
         values.put(KEY_BOOK_MONEY, item.getMoney());
         values.put(KEY_BOOK_TIME, item.getTime());
         values.put(KEY_BOOK_CATEGORY, item.getCategory());
         values.put(KEY_BOOK_ACCOUNT, item.getAccount());
+        StringBuilder sb = new StringBuilder();
+        for (String s : item.getTags()) {
+            sb.append(s);
+            sb.append(",");
+        }
+        values.put(KEY_BOOK_TAGS, sb.toString());
         return database.insert(TABLE_BOOK_ITEMS, null, values);
     }
+    public int modifyBookItem(BookItem item) {
+        assert database != null;
+        if (item == null) return 0;
+        long id = item.getId();
+        ContentValues values = new ContentValues();
+        values.put(KEY_BOOK_MONEY, item.getMoney());
+        values.put(KEY_BOOK_TIME, item.getTime());
+        values.put(KEY_BOOK_CATEGORY, item.getCategory());
+        values.put(KEY_BOOK_ACCOUNT, item.getAccount());
+        StringBuilder sb = new StringBuilder();
+        for (String s : item.getTags()) {
+            sb.append(s);
+            sb.append(",");
+        }
+        values.put(KEY_BOOK_TAGS, sb.toString());
+        return database.update(TABLE_BOOK_ITEMS, values,
+                KEY_BOOK_ID + "=?", new String[]{"" + id});
+    }
+    public void delBookItem(long id) {
+        assert database != null;
+        database.execSQL(String.format(Locale.getDefault(),
+                "DELETE FROM %s WHERE %s=%d",
+                TABLE_BOOK_ITEMS, KEY_BOOK_ID, id
+        ));
+    }
+    public long addAccount(String account) {
+        assert database != null;
+        ContentValues values = new ContentValues();
+        values.put(KEY_ACCOUNT_NAME, account);
+        return database.insert(TABLE_ACCOUNTS, null, values);
+    }
+    public void delAccount(long id) {
+        assert database != null;
+        database.execSQL(String.format(Locale.getDefault(),
+                "DELETE FROM %s WHERE %s=%d",
+                TABLE_ACCOUNTS, KEY_ACCOUNT_ID, id
+        ));
+    }
+    public long addCategory(String category) {
+        assert database != null;
+        ContentValues values = new ContentValues();
+        values.put(KEY_CATEGORY_NAME, category);
+        return database.insert(TABLE_CATEGORIES, null, values);
+    }
+    public void delCategory(long id) {
+        assert database != null;
+        database.execSQL(String.format(Locale.getDefault(),
+                "DELETE FROM %s WHERE %s=%d",
+                TABLE_CATEGORIES, KEY_CATEGORY_ID, id
+        ));
+    }
 
-    public int loadBookItems(ArrayList<BookItem> items, boolean is_clear) {
-        assert manager != null;
+    private final static String [] books_columns = new String[]
+            { KEY_BOOK_ID, KEY_BOOK_MONEY, KEY_BOOK_ACCOUNT,
+                    KEY_BOOK_CATEGORY, KEY_BOOK_TIME, KEY_BOOK_TAGS, };
+    public int loadBookItems(ArrayList<BookItem> items) {
+        assert database != null;
+        int count = 0;
 
-        if (is_clear)
-            items.clear();
+        Cursor c = database.query(TABLE_BOOK_ITEMS, books_columns,
+                null, null, null, null, null);
+        if (c == null) return -1;
+        while(c.moveToNext()) {
+            long id = c.getLong(0);
+            int money = c.getInt(1);
+//            long category_id = c.getLong(2);
+            String category = c.getString(2);
+//            long account_id = c.getLong(3);
+            String account = c.getString(3);
+            long time = c.getLong(4);
+            String tags = c.getString(5);
+            String[] tag_arr = tags.split(",");
+            ArrayList<String> tag_list = new ArrayList<>(Arrays.asList(tag_arr));
+            BookItem item = new BookItem(id, money, time, category, account);
+            item.setTagList(tag_list);
+            items.add(item);
+            count++;
+        }
+        c.close();
+        return count;
+    }
 
-        return 0;
+    private final static String[] accounts_columns = new String[]
+            { KEY_ACCOUNT_ID, KEY_ACCOUNT_NAME, };
+//    public int loadAccounts(ArrayList<Account> accounts) {
+//        assert database != null;
+//        if (accounts == null) return -1;
+//        int count = 0;
+//
+//        Cursor c = database.query(TABLE_ACCOUNTS, accounts_columns,
+//                null, null, null, null, null);
+//        if (c == null) return -1;
+//        while(c.moveToNext()) {
+//            long id = c.getLong(0);
+//            String name = c.getString(1);
+//            count++;
+//        }
+//        c.close();
+//        return count;
+//    }
+    public int loadAccounts(ArrayList<String> accounts) {
+        assert database != null;
+        if (accounts == null) return -1;
+        int count = 0;
+
+        Cursor c = database.query(TABLE_ACCOUNTS, accounts_columns,
+                null, null, null, null, null);
+        if (c == null) return -1;
+        while(c.moveToNext()) {
+            long id = c.getLong(0);
+            String name = c.getString(1);
+            accounts.add(name);
+            count++;
+        }
+        c.close();
+        return count;
+    }
+
+    private final static String[] categories_columns = new String[]
+            { KEY_CATEGORY_ID, KEY_CATEGORY_NAME, };
+//    public int loadCategories(ArrayList<Category> categories) {
+//        assert database != null;
+//        if (categories == null) return -1;
+//        int count = 0;
+//        Cursor c = database.query(TABLE_CATEGORIES, categories_columns,
+//                null, null, null, null, null);
+//        while(c.moveToNext()){
+//            long id = c.getLong(0);
+//            String name = c.getString(1);
+//            Category cate = new Category(id, name);
+//            categories.add(cate);
+//            count++;
+//        }
+//        c.close();
+//        return count;
+//    }
+    public int loadCategories(ArrayList<String> categories) {
+        assert database != null;
+        if (categories == null) return -1;
+        int count = 0;
+        Cursor c = database.query(TABLE_CATEGORIES, categories_columns,
+                null, null, null, null, null);
+        while(c.moveToNext()){
+            long id = c.getLong(0);
+            String name = c.getString(1);
+            categories.add(name);
+            count++;
+        }
+        c.close();
+        return count;
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.Locale;
 
 public class BookItem {
 
-    private long id;
+    private long id = -1;
     private int money;
     private String moneyString;
     private long time;
@@ -13,7 +13,19 @@ public class BookItem {
     private ArrayList<String> tags = new ArrayList<>();
     private String account;
 
+    public static BookItem getNullInstance() {
+        return new BookItem();
+    }
+    private BookItem() {
+    }
     public BookItem(int money, long time, String category, String account) {
+        this.money = money;
+        this.time = time;
+        this.category = category;
+        this.account = account;
+    }
+    public BookItem(long id, int money, long time, String category, String account) {
+        this.id = id;
         this.money = money;
         this.time = time;
         this.category = category;

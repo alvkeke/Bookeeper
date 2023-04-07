@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat;
 import com.alvkeke.bookeeper.R;
 import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.storage.StorageManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -86,22 +87,29 @@ public class ItemDetailActivity extends AppCompatActivity {
                 money *= -1;
             }
             BookItem item;
+            StorageManager sm = StorageManager.getInstance(ItemDetailActivity.this);
             if (targetIndex == -1) {
-                item = new BookItem(money, newItemDateTime.getTime(), category, account);
+                item = BookItem.getNullInstance();
+            } else if (targetIndex >= bookManager.getBookItems().size()) {
+                Log.e("ItemAdd", "index out of bound : " + targetIndex);
+                return;
+            } else {
+                item = bookManager.getBookItems().get(targetIndex);
+            }
+            item.setMoney(money);
+            item.setTime(newItemDateTime.getTime());
+            item.setCategory(category);
+            item.setAccount(account);
+            item.setTagList(selectedTags);
+            if (targetIndex == -1) {
                 targetIndex = bookManager.getBookItems().size();
                 bookManager.addBookItem(item);
+                item.setId(sm.addBookItem(item));
             } else {
-                if (targetIndex >= bookManager.getBookItems().size()) {
-                    Log.e("ItemAdd", "index out of bound : " + targetIndex);
-                    return;
+                if (sm.modifyBookItem(item) == 0) {
+                    Log.e(this.toString(), "No item in database is modified!");
                 }
-                item = bookManager.getBookItems().get(targetIndex);
-                item.setMoney(money);
-                item.setTime(newItemDateTime.getTime());
-                item.setCategory(category);
-                item.setAccount(account);
             }
-            item.setTagList(selectedTags);
 
             Intent intent = new Intent();
             intent.putExtra(INTENT_ITEM_INDEX, targetIndex);
