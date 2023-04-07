@@ -1,6 +1,7 @@
 package com.alvkeke.bookeeper;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private BookListAdapter bookItemListAdapter;
     private Button btnAddItem;
 
-    private MenuItem menuItemAdd, menuItemEdit, menuItemDelete, menuItemDeselect, menuItemSelectAll;
+    private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
     private void randomFillAccounts(ArrayList<String> accounts) {
         String[] c = new String[] {"支付宝", "微信支付", "银行卡", "信用卡"};
@@ -116,15 +117,11 @@ public class MainActivity extends AppCompatActivity {
     private void reSetMenuVisible() {
         int count = bookItemListAdapter.getSelectedItemCount();
         if (count == 0) {
-            menuItemAdd.setVisible(true);
             menuItemDelete.setVisible(false);
-            menuItemEdit.setVisible(false);
             menuItemSelectAll.setVisible(false);
             menuItemDeselect.setVisible(false);
         } else {
-            menuItemAdd.setVisible(false);
             menuItemDelete.setVisible(true);
-            menuItemEdit.setVisible(count == 1);
             menuItemSelectAll.setVisible(true);
             menuItemDeselect.setVisible(true);
         }
@@ -220,8 +217,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main_activity_top, menu);
-        menuItemAdd = menu.findItem(R.id.menu_item_main_add);
-        menuItemEdit = menu.findItem(R.id.menu_item_main_edit);
         menuItemDelete = menu.findItem(R.id.menu_item_main_delete);
         menuItemSelectAll = menu.findItem(R.id.menu_item_main_select_all);
         menuItemDeselect = menu.findItem(R.id.menu_item_main_deselect);
@@ -232,9 +227,17 @@ public class MainActivity extends AppCompatActivity {
         btnAddItem.callOnClick();
     }
     private void onMenuDelete() {
-        bookItemListAdapter.deleteSelectedItems();
-        bookItemListAdapter.notifyDataSetChanged();
-        reSetMenuVisible();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Delete Book Items")
+                .setMessage("Are you really to delete these item(s)?")
+                .setPositiveButton("OK", (dialogInterface, i) -> {
+                    bookItemListAdapter.deleteSelectedItems();
+                    bookItemListAdapter.notifyDataSetChanged();
+                    reSetMenuVisible();
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
     }
     private void onMenuSelectAll() {
         bookItemListAdapter.itemSelectAll();
@@ -260,16 +263,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_item_main_add)
-                onMenuAdd();
         if (id == R.id.menu_item_main_delete)
                 onMenuDelete();
         if (id == R.id.menu_item_main_select_all)
                 onMenuSelectAll();
         if (id == R.id.menu_item_main_deselect)
                 onMenuDeselect();
-        if (id == R.id.menu_item_main_edit)
-                onMenuEdit();
         return super.onOptionsItemSelected(item);
     }
 }
