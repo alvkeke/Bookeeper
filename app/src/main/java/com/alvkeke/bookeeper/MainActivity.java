@@ -222,10 +222,6 @@ public class MainActivity extends AppCompatActivity {
         menuItemDeselect = menu.findItem(R.id.menu_item_main_deselect);
         return true; //super.onCreateOptionsMenu(menu);
     }
-
-    private void onMenuAdd() {
-        btnAddItem.callOnClick();
-    }
     private void onMenuDelete() {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Delete Book Items")
@@ -248,17 +244,6 @@ public class MainActivity extends AppCompatActivity {
         bookItemListAdapter.itemSelectClear();
         bookItemListAdapter.notifyDataSetChanged();
         reSetMenuVisible();
-    }
-    private void onMenuEdit() {
-        int index = bookItemListAdapter.getSelectedItem_ifOnlyOne();
-        if (index == -1)
-            return;
-        bookItemListAdapter.itemSelectSet(index, false);
-        bookItemListAdapter.notifyItemChanged(index);
-        reSetMenuVisible();
-        Intent intent = new Intent(MainActivity.this, ItemDetailActivity.class);
-        intent.putExtra(ItemDetailActivity.INTENT_ITEM_INDEX, index);
-        itemDetailActivityLauncher.launch(intent);
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
