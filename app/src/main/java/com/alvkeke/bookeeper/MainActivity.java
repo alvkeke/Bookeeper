@@ -126,10 +126,10 @@ public class MainActivity extends AppCompatActivity {
             menuItemDeselect.setVisible(true);
         }
     }
+    private boolean isSelectMode = false;
     class BookItemClickListener implements BookListAdapter.OnItemLongClickListener,
             BookListAdapter.OnItemClickListener{
         private final BookListAdapter adapter;
-        private boolean isSelectMode = false;
         public BookItemClickListener(BookListAdapter adapter) {
             this.adapter = adapter;
         }
@@ -239,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                                 bookItemListAdapter.getItemCount());
                     }
                     bookItemListAdapter.itemSelectClear();
+                    isSelectMode = false;
                     reSetMenuVisible();
                 })
                 .setNegativeButton("Cancel", null)
