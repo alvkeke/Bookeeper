@@ -156,7 +156,9 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 1:
                                 manager.getBookItems().remove(pos);
-                                MainActivity.this.bookItemListAdapter.notifyItemRemoved(pos);
+                                bookItemListAdapter.notifyItemRemoved(pos);
+                                bookItemListAdapter.notifyItemRangeChanged(pos,
+                                        bookItemListAdapter.getItemCount());
                             case 2:
                             default:
                         }
@@ -233,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
                         int idx = bookManager.getBookItems().indexOf(e);
                         bookManager.getBookItems().remove(e);
                         bookItemListAdapter.notifyItemRemoved(idx);
+                        bookItemListAdapter.notifyItemRangeChanged(idx,
+                                bookItemListAdapter.getItemCount());
                     }
                     bookItemListAdapter.itemSelectClear();
                     reSetMenuVisible();
