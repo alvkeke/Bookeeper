@@ -231,13 +231,15 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     int[] item_idx = bookItemListAdapter.getSelectedItemIndex();
                     ArrayList<BookItem> items = bookManager.getBookItemsWithIndex(item_idx);
+                    int min_idx = item_idx[0];
                     for (BookItem e : items) {
                         int idx = bookManager.getBookItems().indexOf(e);
+                        min_idx = Math.min(idx, min_idx);
                         bookManager.getBookItems().remove(e);
                         bookItemListAdapter.notifyItemRemoved(idx);
-                        bookItemListAdapter.notifyItemRangeChanged(idx,
-                                bookItemListAdapter.getItemCount());
                     }
+                    bookItemListAdapter.notifyItemRangeChanged(min_idx,
+                            bookItemListAdapter.getItemCount());
                     bookItemListAdapter.itemSelectClear();
                     isSelectMode = false;
                     reSetMenuVisible();
