@@ -28,8 +28,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import com.alvkeke.bookeeper.R;
+import com.alvkeke.bookeeper.data.Account;
 import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.data.Category;
+import com.alvkeke.bookeeper.storage.StorageManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,7 +53,8 @@ public class ItemDetailActivity extends AppCompatActivity {
     private EditText editItemMoney;
     private Date newItemDateTime;
 
-    private ArrayAdapter<String> spinnerAdapterIncome, spinnerAdapterOutlay, spinnerAdapterAccount;
+    private ArrayAdapter<Category> spinnerAdapterIncome, spinnerAdapterOutlay;
+    private ArrayAdapter<Account> spinnerAdapterAccount;
     private final ArrayList<String> selectedTags = new ArrayList<>();
 
     class OnItemAddCancel implements View.OnClickListener {
@@ -65,8 +69,8 @@ public class ItemDetailActivity extends AppCompatActivity {
     class OnItemAddOk implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            String category = spinnerCategory.getSelectedItem().toString();
-            String account = spinnerAccount.getSelectedItem().toString();
+            Category category = (Category) spinnerCategory.getSelectedItem();
+            Account account = (Account) spinnerAccount.getSelectedItem();
             String[] ssMoney = editItemMoney.getText().toString().split("\\.");
             if (ssMoney.length <= 0) {
                 Log.e("ItemAdd", "Not a correct value of money");
@@ -86,22 +90,29 @@ public class ItemDetailActivity extends AppCompatActivity {
                 money *= -1;
             }
             BookItem item;
+            StorageManager sm = StorageManager.getInstance(ItemDetailActivity.this);
             if (targetIndex == -1) {
-                item = new BookItem(money, newItemDateTime.getTime(), category, account);
+                item = BookItem.getNullInstance();
+            } else if (targetIndex >= bookManager.getBookItems().size()) {
+                Log.e("ItemAdd", "index out of bound : " + targetIndex);
+                return;
+            } else {
+                item = bookManager.getBookItems().get(targetIndex);
+            }
+            item.setMoney(money);
+            item.setTime(newItemDateTime.getTime());
+            item.setCategoryId(category.getId());
+            item.setAccountId(account.getId());
+            item.setTagList(selectedTags);
+            if (targetIndex == -1) {
                 targetIndex = bookManager.getBookItems().size();
                 bookManager.addBookItem(item);
+                item.setId(sm.addBookItem(item));
             } else {
-                if (targetIndex >= bookManager.getBookItems().size()) {
-                    Log.e("ItemAdd", "index out of bound : " + targetIndex);
-                    return;
+                if (sm.modifyBookItem(item) == 0) {
+                    Log.e(this.toString(), "No item in database is modified!");
                 }
-                item = bookManager.getBookItems().get(targetIndex);
-                item.setMoney(money);
-                item.setTime(newItemDateTime.getTime());
-                item.setCategory(category);
-                item.setAccount(account);
             }
-            item.setTagList(selectedTags);
 
             Intent intent = new Intent();
             intent.putExtra(INTENT_ITEM_INDEX, targetIndex);
@@ -281,10 +292,10 @@ public class ItemDetailActivity extends AppCompatActivity {
         // initialize 2 spinner adapters
         spinnerAdapterOutlay = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                bookManager.getOutlayCategories());
+                bookManager.getCategoriesOutlay());
         spinnerAdapterIncome = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                bookManager.getIncomeCategories());
+                bookManager.getCategoriesIncome());
         spinnerAdapterAccount = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 bookManager.getAccounts());
@@ -335,13 +346,13 @@ public class ItemDetailActivity extends AppCompatActivity {
         String sMoney = item.getMoneyString().substring(1);
         editItemMoney.setText(sMoney);
         for (int i = 0; i<spinnerAdapterAccount.getCount(); i++) {
-            if (spinnerAdapterAccount.getItem(i).equals(item.getAccount())) {
+            if (spinnerAdapterAccount.getItem(i).equals(item.getAccountId())) {
                 spinnerAccount.setSelection(i);
                 break;
             }
         }
 
-        ArrayAdapter<String> inoutAdapter;
+        ArrayAdapter<Category> inoutAdapter;
         if (item.getMoney() > 0) {
             radioIncome.setChecked(true);
             inoutAdapter = spinnerAdapterIncome;
@@ -351,7 +362,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
 
         for (int i=0; i<inoutAdapter.getCount(); i++) {
-            if (inoutAdapter.getItem(i).equals(item.getCategory())) {
+            if (inoutAdapter.getItem(i).equals(item.getCategoryId())) {
                 spinnerCategory.setSelection(i);
                 break;
             }
