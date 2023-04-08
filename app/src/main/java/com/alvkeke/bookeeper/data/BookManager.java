@@ -7,17 +7,18 @@ public class BookManager {
     private static final BookManager manager = new BookManager();
 
     private final ArrayList<BookItem> bookItems;
-    private final ArrayList<String> outcomeCategories;
-    private final ArrayList<String> incomeCategories;
-    private final ArrayList<String> accounts;
+    private final ArrayList<Category> categories;
+    private final ArrayList<Account> accounts;
     private final ArrayList<String> tags;
+    private ArrayList<String> stringAccounts;
+    private ArrayList<String> outcomeCategories;
+    private ArrayList<String> incomeCategories;
 
 
     private BookManager() {
         bookItems = new ArrayList<>();
-        outcomeCategories = new ArrayList<>();
-        incomeCategories = new ArrayList<>();
         accounts = new ArrayList<>();
+        categories = new ArrayList<>();
         tags = new ArrayList<>();
     }
 
@@ -25,8 +26,18 @@ public class BookManager {
         return manager;
     }
 
-    public ArrayList<String> getAccounts() {
+    public ArrayList<Account> getAccounts() {
         return accounts;
+    }
+    public ArrayList<String> getStringAccounts() {
+        stringAccounts.clear();
+        for (Account e : accounts) {
+            stringAccounts.add(e.getName());
+        }
+        return stringAccounts;
+    }
+    public ArrayList<Category> getCategories() {
+        return categories;
     }
     public ArrayList<String> getOutlayCategories() {
         return outcomeCategories;
@@ -59,4 +70,19 @@ public class BookManager {
         }
     }
 
+    public Account getAccountById(long accountId) {
+        for (Account e : accounts) {
+            if (e.getId() == accountId)
+                return e;
+        }
+        return null;
+    }
+
+    public Category getCategoryById(long id) {
+        for (Category e : categories) {
+            if (e.getId() == id)
+                return e;
+        }
+        return null;
+    }
 }

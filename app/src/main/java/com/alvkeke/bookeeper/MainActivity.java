@@ -1,7 +1,6 @@
 package com.alvkeke.bookeeper;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> cates_out = bookManager.getOutlayCategories();
         ArrayList<String> cates_in = bookManager.getIncomeCategories();
         ArrayList<String> cates;
-        ArrayList<String> accounts = bookManager.getAccounts();
+        ArrayList<String> accounts = bookManager.getStringAccounts();
         Random random = new Random();
 
         for (int i=0; i<5; i++) {
@@ -82,8 +81,9 @@ public class MainActivity extends AppCompatActivity {
                 cates = cates_out;
 
             BookItem item = new BookItem(money * 100, random.nextLong() % new Date().getTime(),
-                    cates.get(random.nextInt(cates.size())),
-                    accounts.get(random.nextInt(accounts.size())));
+//                    cates.get(random.nextInt(cates.size())),
+//                    accounts.get(random.nextInt(accounts.size())));
+                    0, 0);
             if (bookManager.getTags() != null)
             {
                 for (String tag : bookManager.getTags()) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             BookItem item = manager.getBookItems().get(pos);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(item.getCategory() + "-" + item.getAccount() + ":" + item.getMoneyString())
+            builder.setTitle(item.getCategoryId() + "-" + item.getAccountId() + ":" + item.getMoneyString())
                     .setItems(bookMenu, (dialogInterface, i) -> {
                         Log.d("Main", "index: " + i);
                         switch (i) {
@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
         storageManager = StorageManager.getInstance(this);
 
         storageManager.loadAccounts(bookManager.getAccounts());
-        storageManager.loadCategories(bookManager.getIncomeCategories());
-        storageManager.loadCategories(bookManager.getOutlayCategories());
+        storageManager.loadCategories(bookManager.getCategories());
+//        storageManager.loadCategories(bookManager.getOutlayCategories());
         storageManager.loadBookItems(bookManager.getBookItems());
     }
     @Override

@@ -1,5 +1,7 @@
 package com.alvkeke.bookeeper.data;
 
+import androidx.annotation.NonNull;
+
 public class Account {
 
     private long id = -1;
@@ -28,5 +30,11 @@ public class Account {
 
     public String getName() {
         return name;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

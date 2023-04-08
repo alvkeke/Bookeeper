@@ -9,27 +9,27 @@ public class BookItem {
     private int money;
     private String moneyString;
     private long time;
-    private String category;
+    private long category_id;
     private ArrayList<String> tags = new ArrayList<>();
-    private String account;
+    private long account_id;
 
     public static BookItem getNullInstance() {
         return new BookItem();
     }
     private BookItem() {
     }
-    public BookItem(int money, long time, String category, String account) {
+    public BookItem(int money, long time, long category, long account) {
         this.money = money;
         this.time = time;
-        this.category = category;
-        this.account = account;
+        this.category_id = category;
+        this.account_id = account;
     }
-    public BookItem(long id, int money, long time, String category, String account) {
+    public BookItem(long id, int money, long time, long category, long account) {
         this.id = id;
         this.money = money;
         this.time = time;
-        this.category = category;
-        this.account = account;
+        this.category_id = category;
+        this.account_id = account;
     }
 
     public long getId() {
@@ -70,20 +70,20 @@ public class BookItem {
         return time;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryId(long category_id) {
+        this.category_id = category_id;
     }
 
-    public String getCategory() {
-        return category;
+    public long getCategoryId() {
+        return category_id;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setAccountId(long account_id) {
+        this.account_id = account_id;
     }
 
-    public String getAccount() {
-        return account;
+    public long getAccountId() {
+        return account_id;
     }
 
     public void setTagList(ArrayList<String> tags) {

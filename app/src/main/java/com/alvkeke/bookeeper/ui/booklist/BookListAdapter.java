@@ -13,7 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alvkeke.bookeeper.R;
+import com.alvkeke.bookeeper.data.Account;
 import com.alvkeke.bookeeper.data.BookItem;
+import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.data.Category;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,10 +59,13 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             return;
         }
 
-        holder.setAccount(item.getAccount());
+        BookManager manager = BookManager.getInstance();
+        Account account = manager.getAccountById(item.getAccountId());
+        holder.setAccount(account.getName());
         holder.setMoney(item.getMoney(), item.getMoneyString());
         holder.setTime(item.getTime());
-        holder.setCategory(item.getCategory());
+        Category category = manager.getCategoryById(item.getCategoryId());
+        holder.setCategory(category.getName());
         holder.setTags(item.getTags());
         if (selectItems.get(position)){
             holder.setBackground(Color.LTGRAY);
