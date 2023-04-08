@@ -1,24 +1,26 @@
 package com.alvkeke.bookeeper.data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class BookManager {
 
     private static final BookManager manager = new BookManager();
 
     private final ArrayList<BookItem> bookItems;
-    private final ArrayList<Category> categories;
+    private final ArrayList<Category> categoriesIncome;
+    private final ArrayList<Category> categoriesOutlay;
     private final ArrayList<Account> accounts;
     private final ArrayList<String> tags;
-    private ArrayList<String> stringAccounts;
-    private ArrayList<String> outcomeCategories;
-    private ArrayList<String> incomeCategories;
 
 
     private BookManager() {
         bookItems = new ArrayList<>();
         accounts = new ArrayList<>();
-        categories = new ArrayList<>();
+        categoriesIncome = new ArrayList<>();
+        categoriesOutlay = new ArrayList<>();
         tags = new ArrayList<>();
     }
 
@@ -29,22 +31,27 @@ public class BookManager {
     public ArrayList<Account> getAccounts() {
         return accounts;
     }
-    public ArrayList<String> getStringAccounts() {
-        stringAccounts.clear();
-        for (Account e : accounts) {
-            stringAccounts.add(e.getName());
+
+    public void sortCategories(ArrayList<Category> categories) {
+        for (Category c : categories) {
+            if (c.getType() == Category.CategoryType.INCOME) {
+                categoriesIncome.add(c);
+            } else if (c.getType() == Category.CategoryType.OUTLAY) {
+                categoriesOutlay.add(c);
+            } else {
+                Log.e(this.toString(), String.format(Locale.getDefault(),
+                        "Got Wrong category Type for %s[%d] : %s",
+                        c.getName(), c.getId(), c.getType()));
+            }
         }
-        return stringAccounts;
-    }
-    public ArrayList<Category> getCategories() {
-        return categories;
-    }
-    public ArrayList<String> getOutlayCategories() {
-        return outcomeCategories;
     }
 
-    public ArrayList<String> getIncomeCategories() {
-        return incomeCategories;
+    public ArrayList<Category> getCategoriesIncome() {
+        return categoriesIncome;
+    }
+
+    public ArrayList<Category> getCategoriesOutlay() {
+        return categoriesOutlay;
     }
 
     public ArrayList<String> getTags() {
@@ -75,12 +82,17 @@ public class BookManager {
             if (e.getId() == accountId)
                 return e;
         }
+        Log.e(this.toString(), "Account["+accountId+"] not found.");
         return null;
     }
 
-    public Category getCategoryById(long id) {
-        for (Category e : categories) {
-            if (e.getId() == id)
+    public Category getCategoryById(long categoryId) {
+        for (Category e : categoriesIncome) {
+            if (e.getId() == categoryId)
+                return e;
+        }
+        for (Category e : categoriesOutlay) {
+            if (e.getId() == categoryId)
                 return e;
         }
         return null;

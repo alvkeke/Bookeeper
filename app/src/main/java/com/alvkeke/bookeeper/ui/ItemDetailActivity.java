@@ -292,10 +292,10 @@ public class ItemDetailActivity extends AppCompatActivity {
         // initialize 2 spinner adapters
         spinnerAdapterOutlay = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                bookManager.getCategories());
+                bookManager.getCategoriesOutlay());
         spinnerAdapterIncome = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                bookManager.getCategories());
+                bookManager.getCategoriesIncome());
         spinnerAdapterAccount = new ArrayAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 bookManager.getAccounts());

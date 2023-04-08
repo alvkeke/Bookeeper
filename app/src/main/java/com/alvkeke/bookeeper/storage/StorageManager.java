@@ -204,10 +204,8 @@ public class StorageManager {
         while(c.moveToNext()) {
             long id = c.getLong(0);
             int money = c.getInt(1);
-            long category_id = c.getLong(2);
-//            String category = c.getString(2);
-            long account_id = c.getLong(3);
-//            String account = c.getString(3);
+            long account_id = c.getLong(2);
+            long category_id = c.getLong(3);
             long time = c.getLong(4);
             String tags = c.getString(5);
             String[] tag_arr = tags.split(",");
@@ -234,28 +232,13 @@ public class StorageManager {
         while(c.moveToNext()) {
             long id = c.getLong(0);
             String name = c.getString(1);
+            Account account = new Account(id, name);
+            accounts.add(account);
             count++;
         }
         c.close();
         return count;
     }
-//    public int loadAccounts(ArrayList<String> accounts) {
-//        assert database != null;
-//        if (accounts == null) return -1;
-//        int count = 0;
-//
-//        Cursor c = database.query(TABLE_ACCOUNTS, accounts_columns,
-//                null, null, null, null, null);
-//        if (c == null) return -1;
-//        while(c.moveToNext()) {
-//            long id = c.getLong(0);
-//            String name = c.getString(1);
-//            accounts.add(name);
-//            count++;
-//        }
-//        c.close();
-//        return count;
-//    }
 
     private final static String[] categories_columns = new String[]
             { KEY_CATEGORY_ID, KEY_CATEGORY_NAME, KEY_CATEGORY_TYPE, };
@@ -278,20 +261,5 @@ public class StorageManager {
         c.close();
         return count;
     }
-//    public int loadCategories(ArrayList<String> categories) {
-//        assert database != null;
-//        if (categories == null) return -1;
-//        int count = 0;
-//        Cursor c = database.query(TABLE_CATEGORIES, categories_columns,
-//                null, null, null, null, null);
-//        while(c.moveToNext()){
-//            long id = c.getLong(0);
-//            String name = c.getString(1);
-//            categories.add(name);
-//            count++;
-//        }
-//        c.close();
-//        return count;
-//    }
 
 }

@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.data.Category;
 import com.alvkeke.bookeeper.storage.StorageManager;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
@@ -29,6 +30,7 @@ import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,58 +44,57 @@ public class MainActivity extends AppCompatActivity {
 
     private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
-    private void randomFillAccounts(ArrayList<String> accounts) {
+    void randomFillDatabase() {
+        // Fill Accounts
         String[] c = new String[] {"支付宝", "微信支付", "银行卡", "信用卡"};
-        accounts.addAll(Arrays.asList(c));
-//        for (String s : c) {
-//            accounts.add(s);
-//            storageManager.addAccount(s);
-//        }
-    }
-    private void randomFillTags(ArrayList<String> tags) {
-        for (int i=0; i<20; i++) {
-            String s = "tag" + i;
-            tags.add(s);
+        for (String s : c) {
+            storageManager.addAccount(s);
         }
-    }
-    private void randomFillCateIn(ArrayList<String> categories) {
-        String[] c = new String[]{"工资", "红包", "利息", "退款", "生活费", "报销", "奖金", "还钱"};
-        categories.addAll(Arrays.asList(c));
-    }
-    private void randomFillCateOut(ArrayList<String> categories) {
-        String[] c = new String[]{"餐饮", "衣物穿戴", "交通", "住宿", "娱乐", "医疗", "电子产品", "互联网服务"};
-        categories.addAll(Arrays.asList(c));
-    }
-    private void randomFillBook(ArrayList<BookItem> bookItems) {
-        if (bookItems == null) return;
+        // Fill Category
+        c = new String[]{"工资", "红包", "利息", "退款", "生活费", "报销", "奖金", "还钱"};
+        for (String s : c) {
+            Category x = new Category(s, Category.CategoryType.INCOME);
+            storageManager.addCategory(x);
+        }
+        c = new String[]{"餐饮", "衣物穿戴", "交通", "住宿", "娱乐", "医疗", "电子产品", "互联网服务"};
+        for (String s : c) {
+            Category x = new Category(s, Category.CategoryType.OUTLAY);
+            storageManager.addCategory(x);
+        }
 
-        ArrayList<String> cates_out = bookManager.getOutlayCategories();
-        ArrayList<String> cates_in = bookManager.getIncomeCategories();
-        ArrayList<String> cates;
-        ArrayList<String> accounts = bookManager.getStringAccounts();
-        Random random = new Random();
-
-        for (int i=0; i<5; i++) {
-            int money = random.nextInt(200) - 100;
-            if (money > 0)
-                cates = cates_in;
-            else
-                cates = cates_out;
-
-            BookItem item = new BookItem(money * 100, random.nextLong() % new Date().getTime(),
+        return;
+//    private void randomFillBook(ArrayList<BookItem> bookItems) {
+//        if (bookItems == null) return;
+//
+//        ArrayList<String> cates_out = bookManager.getOutlayCategories();
+//        ArrayList<String> cates_in = bookManager.getIncomeCategories();
+//        ArrayList<String> cates;
+//        ArrayList<String> accounts = bookManager.getStringAccounts();
+//        Random random = new Random();
+//
+//        for (int i=0; i<5; i++) {
+//            int money = random.nextInt(200) - 100;
+//            if (money > 0)
+//                cates = cates_in;
+//            else
+//                cates = cates_out;
+//
+//            BookItem item = new BookItem(money * 100, random.nextLong() % new Date().getTime(),
 //                    cates.get(random.nextInt(cates.size())),
 //                    accounts.get(random.nextInt(accounts.size())));
-                    0, 0);
-            if (bookManager.getTags() != null)
-            {
-                for (String tag : bookManager.getTags()) {
-                    if (random.nextInt(5) == 0)
-                        item.addTag(tag);
-                }
-            }
-            Log.e(this.toString(), "create book item: " + i);
-            bookItems.add(item);
-        }
+//                    0, 0);
+//            if (bookManager.getTags() != null)
+//            {
+//                for (String tag : bookManager.getTags()) {
+//                    if (random.nextInt(5) == 0)
+//                        item.addTag(tag);
+//                }
+//            }
+//            Log.e(this.toString(), "create book item: " + i);
+//            bookItems.add(item);
+//        }
+//    }
+
     }
 
     ActivityResultLauncher<Intent> itemDetailActivityLauncher = registerForActivityResult(
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             this.adapter = adapter;
         }
         private final CharSequence[] bookMenu = new CharSequence[]
-                {"修改", "删除", "取消"};
+                {"Edit", "Remove", "Cancel"};
         private void showItemMenu(int pos) {
             BookManager manager = BookManager.getInstance();
             if (pos >= manager.getBookItems().size())
@@ -151,7 +152,12 @@ public class MainActivity extends AppCompatActivity {
             BookItem item = manager.getBookItems().get(pos);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(item.getCategoryId() + "-" + item.getAccountId() + ":" + item.getMoneyString())
+            String title = String.format(Locale.getDefault(),
+                    "%s - %s : %s",
+                    bookManager.getCategoryById(item.getCategoryId()),
+                    bookManager.getAccountById(item.getAccountId()),
+                    item.getMoneyString());
+            builder.setTitle(title)
                     .setItems(bookMenu, (dialogInterface, i) -> {
                         Log.d("Main", "index: " + i);
                         switch (i) {
@@ -218,10 +224,15 @@ public class MainActivity extends AppCompatActivity {
 
         storageManager = StorageManager.getInstance(this);
 
-        storageManager.loadAccounts(bookManager.getAccounts());
-        storageManager.loadCategories(bookManager.getCategories());
-//        storageManager.loadCategories(bookManager.getOutlayCategories());
+        // XXX: debug only
+        // randomFillDatabase();
+
         storageManager.loadBookItems(bookManager.getBookItems());
+        storageManager.loadAccounts(bookManager.getAccounts());
+        ArrayList<Category> categories = new ArrayList<>();
+        storageManager.loadCategories(categories);
+        bookManager.sortCategories(categories);
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
