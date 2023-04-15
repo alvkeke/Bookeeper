@@ -1,4 +1,4 @@
-package com.alvkeke.bookeeper.ui.booklist;
+package com.alvkeke.bookeeper.ui;
 
 import android.graphics.Color;
 import android.util.Log;

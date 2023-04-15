@@ -26,7 +26,7 @@ import com.alvkeke.bookeeper.data.Category;
 import com.alvkeke.bookeeper.storage.StorageManager;
 import com.alvkeke.bookeeper.ui.AccountListAdapter;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
-import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
+import com.alvkeke.bookeeper.ui.BookListAdapter;
 
 import java.util.ArrayList;
 import java.util.Locale;
