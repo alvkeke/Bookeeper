@@ -24,22 +24,21 @@ import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
 import com.alvkeke.bookeeper.data.Category;
 import com.alvkeke.bookeeper.storage.StorageManager;
+import com.alvkeke.bookeeper.ui.AccountListAdapter;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.booklist.BookListAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private final BookManager bookManager = BookManager.getInstance();
     private StorageManager storageManager; // = StorageManager.getInstance();
-    private RecyclerView bookItemList;
+    private RecyclerView bookItemList, accountList;
     private BookListAdapter bookItemListAdapter;
+    private AccountListAdapter accountListAdapter;
     private Button btnAddItem;
 
     private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
@@ -210,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bookItemList = findViewById(R.id.list_book_list);
+        accountList = findViewById(R.id.drawer_list_account);
         btnAddItem = findViewById(R.id.btn_add_item);
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
@@ -221,6 +221,11 @@ public class MainActivity extends AppCompatActivity {
         BookItemClickListener bookItemClickListener = new BookItemClickListener(bookItemListAdapter);
         bookItemListAdapter.setItemClickListener(bookItemClickListener);
         bookItemListAdapter.setItemLongClickListener(bookItemClickListener);
+
+        accountListAdapter = new AccountListAdapter(bookManager.getAccounts());
+        accountList.setAdapter(accountListAdapter);
+        accountList.setLayoutManager(new LinearLayoutManager(this));
+        accountList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         storageManager = StorageManager.getInstance(this);
 
