@@ -36,7 +36,13 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/drawer_list_account"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/drawer_btn_account"
+            android:text="Add Account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
         
     </LinearLayout>
 

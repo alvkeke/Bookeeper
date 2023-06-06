@@ -24,6 +24,7 @@ import com.alvkeke.bookeeper.data.BookItem;
 import com.alvkeke.bookeeper.data.BookManager;
 import com.alvkeke.bookeeper.data.Category;
 import com.alvkeke.bookeeper.storage.StorageManager;
+import com.alvkeke.bookeeper.ui.AccountDetailActivity;
 import com.alvkeke.bookeeper.ui.AccountListAdapter;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.BookListAdapter;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private BookListAdapter bookItemListAdapter;
     private AccountListAdapter accountListAdapter;
     private Button btnAddItem;
+    private Button btnAddAccount;
 
     private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
@@ -202,6 +204,39 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+    ActivityResultLauncher<Intent> accountDetailActivityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent intent = result.getData();
+                        assert intent != null;
+                        int index = intent.getIntExtra(AccountDetailActivity.INTENT_ACCOUNT_INDEX, -1);
+                        assert index != -1;
+                        accountListAdapter.notifyItemChanged(index);
+                    }
+                }
+            });
+    class AccountItemClickListener implements AccountListAdapter.OnItemClickListener {
+
+        @Override
+        public void OnItemClick(View view, int position) {
+            Intent intent = new Intent(MainActivity.this, AccountDetailActivity.class);
+            intent.putExtra(AccountDetailActivity.INTENT_ACCOUNT_INDEX, position);
+            accountDetailActivityLauncher.launch(intent);
+        }
+
+    }
+
+    class AccountAddBtnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MainActivity.this, AccountDetailActivity.class);
+            accountDetailActivityLauncher.launch(intent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
         bookItemList = findViewById(R.id.list_book_list);
         accountList = findViewById(R.id.drawer_list_account);
         btnAddItem = findViewById(R.id.btn_add_item);
+        btnAddAccount = findViewById(R.id.drawer_btn_account);
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
@@ -226,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
         accountList.setAdapter(accountListAdapter);
         accountList.setLayoutManager(new LinearLayoutManager(this));
         accountList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        accountListAdapter.setItemClickListener(new AccountItemClickListener());
+
+        btnAddAccount.setOnClickListener(new AccountAddBtnClickListener());
 
         storageManager = StorageManager.getInstance(this);
 

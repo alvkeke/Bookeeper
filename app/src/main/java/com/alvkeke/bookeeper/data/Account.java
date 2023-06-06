@@ -6,6 +6,7 @@ public class Account {
 
     private long id = -1;
     private String name;
+    private long balance;
 
     public Account(long id, String name) {
         this.id = id;
@@ -30,6 +31,14 @@ public class Account {
 
     public String getName() {
         return name;
+    }
+
+    public long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(long balance) {
+        this.balance = balance;
     }
 
     @NonNull
