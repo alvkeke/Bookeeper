@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private BookListAdapter bookItemListAdapter;
     private AccountListAdapter accountListAdapter;
     private Button btnAddItem;
-    private Button btnAddAccount;
 
     private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
@@ -246,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
         bookItemList = findViewById(R.id.list_book_list);
         accountList = findViewById(R.id.drawer_list_account);
         btnAddItem = findViewById(R.id.btn_add_item);
-        btnAddAccount = findViewById(R.id.drawer_btn_account);
 
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
@@ -263,8 +261,8 @@ public class MainActivity extends AppCompatActivity {
         accountList.setLayoutManager(new LinearLayoutManager(this));
         accountList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         accountListAdapter.setItemClickListener(new AccountItemClickListener());
-
-        btnAddAccount.setOnClickListener(new AccountAddBtnClickListener());
+        accountListAdapter.setTailButtonClickListener(new AccountAddBtnClickListener());
+        accountListAdapter.setTailButtonName("Add Account");
 
         storageManager = StorageManager.getInstance(this);
 //        storageManager.storageDestroy();
