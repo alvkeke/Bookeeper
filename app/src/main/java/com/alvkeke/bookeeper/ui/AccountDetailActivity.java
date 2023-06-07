@@ -14,6 +14,8 @@ import com.alvkeke.bookeeper.data.Account;
 import com.alvkeke.bookeeper.data.BookManager;
 import com.alvkeke.bookeeper.storage.StorageManager;
 
+import java.util.Locale;
+
 public class AccountDetailActivity extends AppCompatActivity {
 
     public static final String INTENT_ACCOUNT_INDEX = "INTENT_ACCOUNT_INDEX";
@@ -43,7 +45,10 @@ public class AccountDetailActivity extends AppCompatActivity {
             BookManager manager = BookManager.getInstance();
             Account e = manager.getAccounts().get(targetIndex);
             etName.setText(e.getName());
-            etBalance.setText(String.valueOf(e.getBalance()));
+            long balance = e.getBalance();
+            String s_balance = String.format(Locale.getDefault(),
+                    "%d.%02d", balance/100, Math.abs(balance)%100);
+            etBalance.setText(s_balance);
         }
 
 
