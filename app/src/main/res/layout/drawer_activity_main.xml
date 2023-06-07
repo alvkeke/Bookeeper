@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_container"
     android:orientation="vertical"
     android:background="@color/white"
@@ -8,19 +8,26 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/user_info_container"
+        android:background="@color/cardview_shadow_start_color"
         android:layout_width="match_parent"
         android:layout_height="100dp">
-
-        <TextView
-            android:text="asdfanoicansf"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/drawer_list_account"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/user_info_container"
+        android:layout_above="@id/category_setting_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-</LinearLayout>
+    <Button
+        android:id="@+id/category_setting_button"
+        android:text="Category Setting"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
