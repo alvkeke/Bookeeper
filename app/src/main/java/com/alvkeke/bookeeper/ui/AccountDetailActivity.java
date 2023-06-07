@@ -74,10 +74,6 @@ public class AccountDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Incorrect Number!!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (s_balance.indexOf('.') == s_balance.length()-1) {
-                // fix decimal point at the last char
-                s_balance = s_balance.substring(0, s_balance.length()-1);
-            }
 
             if (s_balance.length() == 0) {
                 balance = 0;
@@ -86,13 +82,15 @@ public class AccountDetailActivity extends AppCompatActivity {
             } else {
                 String[] ss = s_balance.split("\\.");
                 balance = Long.parseLong(ss[0]) * 100;
-                if (ss[1].length() < 2) {
-                    balance += Long.parseLong(ss[1]) * 10;
-                } else {
-                    balance += Long.parseLong(ss[1].substring(0, 2));
-                }
-                if (is_neg) {
-                    balance *= -1;
+                if (ss.length == 2) {
+                    if (ss[1].length() < 2) {
+                        balance += Long.parseLong(ss[1]) * 10;
+                    } else {
+                        balance += Long.parseLong(ss[1].substring(0, 2));
+                    }
+                    if (is_neg) {
+                        balance *= -1;
+                    }
                 }
             }
 
