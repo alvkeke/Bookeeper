@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         // Fill Accounts
         String[] c = new String[] {"支付宝", "微信支付", "银行卡", "信用卡"};
         for (String s : c) {
-            storageManager.addAccount(s);
+            storageManager.addAccount(s, 0);
         }
         // Fill Category
         c = new String[]{"工资", "红包", "利息", "退款", "生活费", "报销", "奖金", "还钱"};
@@ -267,6 +267,8 @@ public class MainActivity extends AppCompatActivity {
         btnAddAccount.setOnClickListener(new AccountAddBtnClickListener());
 
         storageManager = StorageManager.getInstance(this);
+//        storageManager.storageDestroy();
+//        finish();
 
         // XXX: debug only
         // randomFillDatabase();

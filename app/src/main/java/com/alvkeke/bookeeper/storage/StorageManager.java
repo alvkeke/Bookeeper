@@ -32,6 +32,7 @@ public class StorageManager {
     public final static String TABLE_ACCOUNTS = "accounts";
     public final static String KEY_ACCOUNT_ID = "account_id";
     public final static String KEY_ACCOUNT_NAME = "account_name";
+    public final static String KEY_ACCOUNT_BALANCE = "account_balance";
     public final static String TABLE_TAGS = "tags";
     public final static String KEY_TAG_ID = "tag_id";
     public final static String KEY_TAG_NAME = "tag_name";
@@ -70,10 +71,11 @@ public class StorageManager {
                 KEY_CATEGORY_TYPE, "INTEGER NOT NULL"
         ));
         database.execSQL(String.format(
-                "CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s);",
+                "CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s, %s %s);",
                 TABLE_ACCOUNTS,
                 KEY_ACCOUNT_ID, "INTEGER PRIMARY KEY AUTOINCREMENT",
-                KEY_ACCOUNT_NAME, "TEXT NOT NULL"
+                KEY_ACCOUNT_NAME, "TEXT NOT NULL",
+                KEY_ACCOUNT_BALANCE, "INTEGER"
         ));
         database.execSQL(String.format(
                 "CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s);",
@@ -162,11 +164,22 @@ public class StorageManager {
                 TABLE_BOOK_ITEMS, KEY_BOOK_ID, id
         ));
     }
-    public long addAccount(String account) {
+    public long addAccount(String account, long balance) {
         assert database != null;
         ContentValues values = new ContentValues();
         values.put(KEY_ACCOUNT_NAME, account);
+        values.put(KEY_ACCOUNT_BALANCE, balance);
         return database.insert(TABLE_ACCOUNTS, null, values);
+    }
+    public int modifyAccount(Account e) {
+        assert database != null;
+        if (e == null) return 0;
+        long id = e.getId();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ACCOUNT_NAME, e.getName());
+        values.put(KEY_ACCOUNT_BALANCE, e.getBalance());
+        return database.update(TABLE_ACCOUNTS, values, KEY_ACCOUNT_ID + "=?",
+                new String[]{"" + id});
     }
     public void delAccount(long id) {
         assert database != null;
@@ -220,7 +233,7 @@ public class StorageManager {
     }
 
     private final static String[] accounts_columns = new String[]
-            { KEY_ACCOUNT_ID, KEY_ACCOUNT_NAME, };
+            { KEY_ACCOUNT_ID, KEY_ACCOUNT_NAME, KEY_ACCOUNT_BALANCE };
     public int loadAccounts(ArrayList<Account> accounts) {
         assert database != null;
         if (accounts == null) return -1;
@@ -232,7 +245,9 @@ public class StorageManager {
         while(c.moveToNext()) {
             long id = c.getLong(0);
             String name = c.getString(1);
+            long balance = c.getLong(2);
             Account account = new Account(id, name);
+            account.setBalance(balance);
             accounts.add(account);
             count++;
         }

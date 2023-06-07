@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.alvkeke.bookeeper.R;
 import com.alvkeke.bookeeper.data.Account;
 import com.alvkeke.bookeeper.data.BookManager;
+import com.alvkeke.bookeeper.storage.StorageManager;
 
 public class AccountDetailActivity extends AppCompatActivity {
 
@@ -86,17 +87,20 @@ public class AccountDetailActivity extends AppCompatActivity {
                 }
             }
 
+            StorageManager sm = StorageManager.getInstance(this);
             Account e;
             if (targetIndex == -1) {
                 e = new Account(newName);
                 targetIndex = BookManager.getInstance().getAccounts().size();
                 bookManager.getAccounts().add(e);
+                e.setBalance(balance);
+                sm.addAccount(e.getName(), balance);
             } else {
                 e = BookManager.getInstance().getAccounts().get(targetIndex);
                 e.setName(newName);
+                e.setBalance(balance);
+                sm.modifyAccount(e);
             }
-
-            e.setBalance(balance);
 
             Intent intentResult = new Intent();
             intentResult.putExtra(INTENT_ACCOUNT_INDEX, targetIndex);
