@@ -73,7 +73,7 @@ public class AccountDetailActivity extends AppCompatActivity {
             if (s_balance.length() == 0) {
                 balance = 0;
             } else if (s_balance.indexOf('.') == -1) {
-                balance = Long.parseLong(s_balance) * (is_neg ? -1 : 1);
+                balance = Long.parseLong(s_balance) * (is_neg ? -1 : 1) * 100;
             } else {
                 String[] ss = s_balance.split("\\.");
                 balance = Long.parseLong(ss[0]) * 100;
