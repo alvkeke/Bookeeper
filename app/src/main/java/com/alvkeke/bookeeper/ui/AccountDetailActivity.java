@@ -69,6 +69,10 @@ public class AccountDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Incorrect Number!!", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (s_balance.indexOf('.') == s_balance.length()-1) {
+                // fix decimal point at the last char
+                s_balance = s_balance.substring(0, s_balance.length()-1);
+            }
 
             if (s_balance.length() == 0) {
                 balance = 0;
