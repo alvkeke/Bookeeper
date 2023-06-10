@@ -13,7 +13,13 @@
         android:theme="@style/Theme.Bookeeper"
         tools:targetApi="31">
         <activity
-android:name=".ui.AccountDetailActivity"
+            android:name=".ui.CategoryDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.CategoryMgmtActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.AccountDetailActivity"
             android:exported="false" />
         <activity
             android:name=".ui.ItemDetailActivity"

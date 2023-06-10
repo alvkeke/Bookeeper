@@ -196,6 +196,17 @@ public class StorageManager {
                 TYPE_CATEGORY_INCOME : TYPE_CATEGORY_OUTLAY);
         return database.insert(TABLE_CATEGORIES, null, values);
     }
+    public int modifyCategory(Category e) {
+        assert database != null;
+        if (e == null) return 0;
+        long id = e.getId();
+        ContentValues values = new ContentValues();
+        values.put(KEY_CATEGORY_NAME, e.getName());
+        values.put(KEY_CATEGORY_TYPE, (e.getType() == Category.CategoryType.INCOME) ?
+                TYPE_CATEGORY_INCOME : TYPE_CATEGORY_OUTLAY);
+        return database.update(TABLE_CATEGORIES, values, KEY_CATEGORY_ID + "=?",
+                new String[]{"" + id});
+    }
     public void delCategory(long id) {
         assert database != null;
         database.execSQL(String.format(Locale.getDefault(),

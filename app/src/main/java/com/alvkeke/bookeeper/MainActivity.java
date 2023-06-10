@@ -26,6 +26,7 @@ import com.alvkeke.bookeeper.data.Category;
 import com.alvkeke.bookeeper.storage.StorageManager;
 import com.alvkeke.bookeeper.ui.AccountDetailActivity;
 import com.alvkeke.bookeeper.ui.AccountListAdapter;
+import com.alvkeke.bookeeper.ui.CategoryMgmtActivity;
 import com.alvkeke.bookeeper.ui.ItemDetailActivity;
 import com.alvkeke.bookeeper.ui.BookListAdapter;
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView bookItemList, accountList;
     private BookListAdapter bookItemListAdapter;
     private AccountListAdapter accountListAdapter;
-    private Button btnAddItem;
+    private Button btnAddItem, btnCateMgmt;
 
     private MenuItem menuItemDelete, menuItemDeselect, menuItemSelectAll;
 
@@ -236,6 +237,27 @@ public class MainActivity extends AppCompatActivity {
             accountDetailActivityLauncher.launch(intent);
         }
     }
+    ActivityResultLauncher<Intent> categoryMgmtActivityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent intent = result.getData();
+                        assert intent != null;
+//                        int index = intent.getIntExtra(AccountDetailActivity.INTENT_ACCOUNT_INDEX, -1);
+//                        assert index != -1;
+//                        accountListAdapter.notifyItemChanged(index);
+                    }
+                }
+            });
+    class BtnCateMgmtClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MainActivity.this, CategoryMgmtActivity.class);
+            categoryMgmtActivityLauncher.launch(intent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,7 +267,9 @@ public class MainActivity extends AppCompatActivity {
         bookItemList = findViewById(R.id.list_book_list);
         accountList = findViewById(R.id.drawer_list_account);
         btnAddItem = findViewById(R.id.btn_add_item);
+        btnCateMgmt = findViewById(R.id.category_setting_button);
 
+        btnCateMgmt.setOnClickListener(new BtnCateMgmtClickListener());
         btnAddItem.setOnClickListener(new BtnAddItemClickListener());
 
         bookItemListAdapter = new BookListAdapter(bookManager.getBookItems());
