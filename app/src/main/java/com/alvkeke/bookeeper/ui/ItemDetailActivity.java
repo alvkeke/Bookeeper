@@ -346,7 +346,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         String sMoney = item.getMoneyString().substring(1);
         editItemMoney.setText(sMoney);
         for (int i = 0; i<spinnerAdapterAccount.getCount(); i++) {
-            if (spinnerAdapterAccount.getItem(i).equals(item.getAccountId())) {
+            if (spinnerAdapterAccount.getItem(i).getId() == item.getAccountId()) {
                 spinnerAccount.setSelection(i);
                 break;
             }
@@ -362,7 +362,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
 
         for (int i=0; i<inoutAdapter.getCount(); i++) {
-            if (inoutAdapter.getItem(i).equals(item.getCategoryId())) {
+            if (inoutAdapter.getItem(i).getId() == item.getCategoryId()) {
                 spinnerCategory.setSelection(i);
                 break;
             }
